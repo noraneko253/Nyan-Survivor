@@ -26,6 +26,42 @@ canvas {
 </head>
 <body>
 <canvas id="c"></canvas>
+
+<!-- 管理者モード パスワードダイアログ -->
+<div id="adminDialog" style="
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.85);
+  display:none; align-items:center; justify-content:center; z-index:9999;
+">
+  <div style="
+    background:#120028; border:1.5px solid #8844cc; border-radius:14px;
+    padding:24px 28px; width:260px; text-align:center; color:#ddaaff;
+    font-family:monospace; box-shadow:0 0 30px rgba(180,80,255,0.5);
+  ">
+    <div style="font-size:18px; font-weight:bold; margin-bottom:14px;">🔐 管理者パスワード</div>
+    <input id="adminPWField" type="password" maxlength="30"
+      placeholder="パスワードを入力"
+      style="
+        width:100%; box-sizing:border-box;
+        background:#220044; border:1px solid #6633aa; border-radius:8px;
+        color:#fff; font-family:monospace; font-size:14px;
+        padding:8px 12px; outline:none; margin-bottom:10px;
+      "
+    />
+    <div id="adminPWError" style="color:#ff4444; font-size:12px; height:16px; margin-bottom:8px;"></div>
+    <div style="display:flex; gap:10px; justify-content:center;">
+      <button id="adminPWOk" style="
+        background:#442288; color:#fff; border:none; border-radius:8px;
+        padding:8px 20px; font-family:monospace; font-size:13px; cursor:pointer;
+      ">✅ 確認</button>
+      <button id="adminPWCancel" style="
+        background:#551111; color:#fff; border:none; border-radius:8px;
+        padding:8px 20px; font-family:monospace; font-size:13px; cursor:pointer;
+      ">❌ キャンセル</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ╔══════════════════════════════════════════════════════════╗
 // ║  ニャンサバイバー！                                     ║
@@ -3320,7 +3356,7 @@ const ENEMY_LORE = {
   bat: {
     name: '🦇 こうもりくん',
     hp: '弱い', atk: '弱い', speed: '速い',
-    story: '実体のない影のような、回廊のラスボス。\n誰にも気づかれず、誰にも触れられない。\n彼が放つ「虚無」の波動は、\nせめて誰かに「ここにいるよ」と気づいてほしい悲鳴なのかもしれない。',
+    story: '洞窟の奥でさかさまに寝るのが大好き。\n昼間は眠くてぼーっとしてる。\n耳がとってもよく聞こえるので\nこっそり近づいても無駄だよ！',
     color: '#cc88ff',
   },
   slime: {
@@ -4350,6 +4386,8 @@ C.addEventListener('touchstart', e => {
 
   // ── スマホ専用：ゲーム中タップ検出 ───────────────────────────────────
   if (state === 'playing') {
+    // 管理者バーボタンを最初にチェック
+    if (_adminMode && handleAdminBarClick(tx, ty)) return;
     // 必殺技ボタン（左下の円、cx2=46, cy2=H-46, r=41）
     const skillDx = tx - 46, skillDy = ty - (H - 46);
     if (Math.sqrt(skillDx*skillDx + skillDy*skillDy) < 50) {
@@ -4628,7 +4666,12 @@ const UPGRADES = [
   { id: 'atk',   name: '攻撃力UP',         icon: '⚔️', desc: '全武器ダメージ×1.15', apply: p      => { p.atkMul *= 1.15; } },
   { id: 'rate',  name: '連射速度UP',        icon: '🔥', desc: 'クールダウン×0.85',   apply: p      => { p.rateMul *= 0.85; } },
   { id: 'range', name: '武器範囲UP',        icon: '🔮', desc: '射程・範囲×1.12 (上限2.0)', apply: p => { p.rangeMul = Math.min(2.0, p.rangeMul * 1.12); } },
-  { id: 'count', name: '弾数UP',            icon: '🎯', desc: '4発に1回、4発目を2連射！',    apply: p      => { p.countBuff = (p.countBuff || 0) + 1; p._shotCtr = 0; } },
+  { id: 'count', name: '弾数UP Lv1',  icon: '🎯', desc: '4発に1回、4発目を2連射！',  apply: p => { p.countBuff = 1; p._shotCtr = 0; },
+    isAvail: p => (p.countBuff||0) === 0 },
+  { id: 'count2', name: '弾数UP Lv2', icon: '🎯', desc: '3発に1回、3発目を2連射！',  apply: p => { p.countBuff = 2; p._shotCtr = 0; },
+    isAvail: p => (p.countBuff||0) === 1 },
+  { id: 'count3', name: '弾数UP Lv3', icon: '🎯', desc: '2発に1回、2発目を2連射！',  apply: p => { p.countBuff = 3; p._shotCtr = 0; },
+    isAvail: p => (p.countBuff||0) === 2 },
   { id: 'pierce',name: '貫通弾',            icon: '🗡️', desc: '貫通+1',              apply: p      => { p.pierce = (p.pierce || 0) + 1; } },
   { id: 'magnet',name: 'マグネット',        icon: '🧲', desc: 'EXP吸引範囲UP',       apply: p      => { p.magnetRange = (p.magnetRange || 80) + 60; } },
   { id: 'wpnFire',  name: 'ファイアボール', icon: '🔥', desc: '新武器: 爆発する火球',  apply:(p,g)  => g.addWeapon('fireball') },
@@ -4690,7 +4733,7 @@ function initWaveSystem() {
     batchRemaining: 0,
     announcing: 0,
     waveFlash: 0,
-    bossTimer: 120,
+    bossTimer: 240, // 4分ごと→8分ゲームで最大2回
   };
 }
 
@@ -4852,11 +4895,9 @@ function spawnEnemy(wave) {
 }
 
 function spawnBoss() {
-  // Don't spawn in trial mode
   if (player && player._trialMode) return;
-  // Don't spawn ぷりん殿下 if a final boss is on field
   if (stageFinalBossSpawned) return;
-  startBossCutin('boss', 'ぷりん殿下', '#ffcc44');
+  // カットインなし（静かに登場）
   const a = Math.random() * Math.PI * 2;
   const min = gameTime / 60;
   const stgHell = (STAGES[selectedStage] || STAGES[0]).isHell;
@@ -4881,6 +4922,10 @@ function spawnBoss() {
       return true;
     }
   });
+  // 登場エフェクトのみ（カットインなし）
+  fxList.push({type:'text', x:player.x, y:player.y-90,
+    text: stgHell ? '🔥 ぷりん殿下が来た！' : '🍮 ぷりん殿下が来た！',
+    life:2.5, color:'#ffcc44', vy:-25, big:false});
 }
 
 // ===== SPAWN SYSTEM =====
@@ -5000,11 +5045,11 @@ function createWeapon(type) {
 // ===== WEAPON UPDATE DISPATCH =====
 function updateWeapons(dt) {
   const dm = player.atkMul, rm = player.rateMul;
-  // ── 弾数UPの「4発目に2連射」カウンター ──
-  // cnt: countBuffが0なら常に0（通常）、countBuff≥1なら4発目のときのみ+1
-  const _hasCnt = (player.countBuff || 0) > 0;
-  if (_hasCnt && player._shotCtr === undefined) player._shotCtr = 0;
-  const cnt = 0; // 通常は+0（武器ごとに4発目のみ+1を付与）
+  // ── 弾数UPの「N発目に2連射」カウンター ──
+  // countBuff 1→4発に1回, 2→3発に1回, 3→2発に1回
+  const _cntIntervals = [0, 4, 3, 2]; // index=countBuff
+  const _cntInterval = _cntIntervals[Math.min(player.countBuff||0, 3)];
+  const cnt = 0; // 武器ごとにshotCtrをチェックして+1
   // Clamp rangeMul per-weapon to prevent extreme sizes
   const RNG_CAPS = { orbit:2.0, shield:2.0, rapid:2.2, triple:2.2, aura:2.0, whip:2.0,
     lightning:2.0, garlic:2.0, fireball:2.0, ice:2.2, boomerang:2.2, holywater:1.8,
@@ -5039,12 +5084,15 @@ function updateWeapons(dt) {
 function updateOrbit(w, dt, dm, rng, cnt) {
   w.angle += (2.5 + w.level * 0.4) * dt;
   const r = (65 + w.level * 8) * rng;
-  const balls = 2 + w.level + cnt;
+  // Lv1:2球 Lv2:3球 Lv3:4球 Lv4:6球 Lv5:8球（説明文通り）
+  const baseBalls = w.level <= 2 ? 2 + (w.level - 1)
+                  : w.level === 3 ? 4
+                  : w.level === 4 ? 6 : 8;
+  const balls = baseBalls + cnt;
   const size = 10 + w.level * 1.5;
-  // Throttle collision check to every other frame
   w._tick = ((w._tick || 0) + 1) % 2;
   if (w._tick !== 0) return;
-  const dmg2 = (5 + w.level) * dm * 2; // double damage every other frame
+  const dmg2 = (5 + w.level * 1.5) * dm * 2;
   for (let i = 0; i < balls; i++) {
     const a = w.angle + (i / balls) * Math.PI * 2;
     const bx = player.x + Math.cos(a) * r, by = player.y + Math.sin(a) * r;
@@ -5060,14 +5108,18 @@ function updateOrbit(w, dt, dm, rng, cnt) {
 function updateShield(w, dt, dm, rng, cnt) {
   w.angle += (1.6 + w.level * 0.25) * dt;
   const r = (50 + w.level * 10) * rng;
-  const shields = 3 + cnt;
+  // Lv1:3枚 Lv2:4枚 Lv3:5枚 Lv4:7枚 Lv5:9枚（説明文通り）
+  const baseShields = w.level <= 2 ? 3 + (w.level - 1)
+                    : w.level === 3 ? 5
+                    : w.level === 4 ? 7 : 9;
+  const shields = baseShields + cnt;
   const size = 14 + w.level * 2;
   for (let i = 0; i < shields; i++) {
     const a = w.angle + (i / shields) * Math.PI * 2;
     const bx = player.x + Math.cos(a) * r, by = player.y + Math.sin(a) * r;
     for (const e of enemies) {
       if (dist(bx, by, e.x, e.y) < size + e.r) {
-        e.takeDmg((9 + w.level * 2) * dm, 0.15, bx, by);
+        e.takeDmg((9 + w.level * 2.5) * dm, 0.15, bx, by);
       }
     }
   }
@@ -5081,9 +5133,9 @@ function updateRapid(w, dt, dm, rm, rng, cnt) {
     const target = nearestEnemy(player.x, player.y, 360 * rng);
     if (!target) return;
     const a0 = angle(player.x, player.y, target.x, target.y);
-    // 4発目かどうか判定（countBuff≥1のとき）
+    // N発目かどうか判定（countBuff≥1のとき）
     if (player.countBuff > 0) {
-      player._shotCtr = ((player._shotCtr || 0) + 1) % 4;
+      player._shotCtr = ((player._shotCtr || 0) + 1) % _cntInterval;
     }
     const isFourth = player.countBuff > 0 && player._shotCtr === 0;
     const bullets = isFourth ? 2 : 1;
@@ -5102,7 +5154,7 @@ function updateTriple(w, dt, dm, rm, rng, cnt) {
     w.timer = cd;
     const target = nearestEnemy(player.x, player.y, 400 * rng);
     const a0 = target ? angle(player.x, player.y, target.x, target.y) : 0;
-    // 4発目ダブル（countBuff使用時はRapidと共有カウンター）
+    // N発目ダブル（countBuff使用時はRapidと共有カウンター）
     const isFourth = player.countBuff > 0 && (player._shotCtr || 0) === 0;
     const bullets = 3 + (isFourth ? 1 : 0);
     for (let b = 0; b < bullets; b++) {
@@ -5134,12 +5186,14 @@ function updateAura(w, dt, dm, rng, rm) {
 function updateShadowAura(w, dt, dm, rm, rng, cnt) {
   const baseR = Math.max(90, (player._auraBaseR || 80)) + w.level * 18;
   const r = baseR * rng;
-  const dmgPerSec = (18 + w.level * 4) * dm;
+  // オーラダメージ大幅強化（旧: 18+lv*4 → 新: 38+lv*10）
+  const dmgPerSec = (38 + w.level * 10) * dm;
   for (const e of enemies) {
     if (e.invincible > 0) continue;
     const dx = e.x - player.x, dy = e.y - player.y;
     if (Math.sqrt(dx*dx+dy*dy) <= r + e.r) {
-      if (e.takeDmg(dmgPerSec * dt * 0.7, 0)) e.slowTimer = (e.slowTimer||0) + dt * 0.8;
+      // ダメージ倍率0.7→1.0に変更（毎フレームフルダメージ）
+      if (e.takeDmg(dmgPerSec * dt, 0)) e.slowTimer = (e.slowTimer||0) + dt * 1.2;
     }
   }
   if (!w._abyssTimer) w._abyssTimer = 0;
@@ -5655,6 +5709,22 @@ function updateEnemies(dt) {
       player.knockY = -(dy / d) * 120;
     }
 
+    // ── 敵プレイヤーめり込み防止：強制押し返し ────────────────────────────
+    // 接触距離より近い場合、プレイヤーを強く押し返す（無敵中でも機能）
+    const _overlapDist = e.r + 14; // プレイヤー半径14px想定
+    if (d < _overlapDist && d > 0.01) {
+      const _pushStrength = (_overlapDist - d) / _overlapDist;
+      // プレイヤーを敵から押し離す
+      const _px = -(dx / d) * _pushStrength * 180 * dt;
+      const _py = -(dy / d) * _pushStrength * 180 * dt;
+      player.x += _px; player.y += _py;
+      // 同時に敵も少し後退させる（ボス以外）
+      if (!e.boss) {
+        e.x += (dx / d) * _pushStrength * 60 * dt;
+        e.y += (dy / d) * _pushStrength * 60 * dt;
+      }
+    }
+
     // Death
     if (e.hp <= 0) {
       killCount++;
@@ -6081,6 +6151,8 @@ function pickUpgrades(n) {
     return sum + (isEvolved ? 2 : 1);
   }, 0);
   const available = UPGRADES.filter(u => {
+    // isAvail条件チェック（弾数UPなどの段階制御）
+    if (u.isAvail && !u.isAvail(player)) return false;
     if (u.id === 'wpnFire'  && (ownedWpns.has('fireball') || evolvedFrom.has('fireball')))  return false;
     if (u.id === 'wpnIce'   && (ownedWpns.has('ice') || evolvedFrom.has('ice')))       return false;
     if (u.id === 'wpnBoom'  && (ownedWpns.has('boomerang') || evolvedFrom.has('boomerang'))) return false;
@@ -6112,13 +6184,15 @@ function pickUpgrades(n) {
     if (isNewWpn && wpnSlots >= 5) return false;
     return true;
   });
-  // Combine: evolutions first (high priority), then weapon level-ups, then stat upgrades
+  // Combine: evolutions with 90%確率（ほぼ確定だが低確率で外れる）、その後レベルアップ・ステータス
   const evos = checkEvolutions();
   const wlvls = getWeaponLevelOptions();
   const statUpgrades = [...available].sort(() => Math.random() - 0.5);
-  // Build pool: up to 1 evo, fill rest with weapon levels then stats
+  // Build pool
   let pool = [];
-  if (evos.length > 0) pool.push(evos[Math.floor(Math.random()*evos.length)]);
+  if (evos.length > 0 && Math.random() < 0.90) {
+    pool.push(evos[Math.floor(Math.random() * evos.length)]);
+  }
   const wlvlShuffled = wlvls.sort(() => Math.random() - 0.5);
   for (const wl of wlvlShuffled) {
     if (pool.length >= n) break;
@@ -6465,7 +6539,10 @@ function drawWeapons() {
 
 function drawOrbit(w) {
   const r = (65 + w.level * 8) * player.rangeMul;
-  const balls = 2 + w.level + player.countBuff;
+  const baseBalls = w.level <= 2 ? 2 + (w.level - 1)
+                  : w.level === 3 ? 4
+                  : w.level === 4 ? 6 : 8;
+  const balls = baseBalls + player.countBuff;
   const size = 10 + w.level * 1.5;
   for (let i = 0; i < balls; i++) {
     const a = w.angle + (i / balls) * Math.PI * 2;
@@ -6540,7 +6617,10 @@ function drawHolyOrbitWeapon(w) {
 
 function drawShield(w) {
   const r = (50 + w.level * 10) * player.rangeMul;
-  const shields = 3 + player.countBuff;
+  const baseShields = w.level <= 2 ? 3 + (w.level - 1)
+                    : w.level === 3 ? 5
+                    : w.level === 4 ? 7 : 9;
+  const shields = baseShields + player.countBuff;
   const size = 14 + w.level * 2;
   for (let i = 0; i < shields; i++) {
     const a = w.angle + (i / shields) * Math.PI * 2;
@@ -7471,7 +7551,7 @@ function drawGame() {
   if (cutinAnim) drawCutin();
   drawMaouCutin();
   drawBossCutin();
-  drawBossCutin();
+  drawAdminBar(); // 管理者バー（HUD上に描画）
   drawAchievementToast();
   if (player && player._trialMode) drawBossTrialHUD();
 }
@@ -8957,6 +9037,10 @@ function updateTitleHover(mx, my) {
 }
 
 function onClick(mx, my) {
+  // 管理者バークリック（playing中、他の処理より先に）
+  if (_adminMode && state === 'playing') {
+    if (handleAdminBarClick(mx, my)) return;
+  }
   if (state === 'intro') {
     skipIntro(); return;
   }
@@ -9180,21 +9264,27 @@ function onClick(mx, my) {
       const pct = (my - 76) / sbH2;
       guideState.scroll = Math.max(0, Math.min(guideState.maxScroll, pct * guideState.maxScroll));
     }
+  } else if (state === 'adminPanel') {
+    handleAdminPanelClick(mx, my);
   } else if (state === 'paused') {
     const px = W/2 - 200, py = 60, pw = 400;
     const contentY = py + 78;
     // Settings gear (top-right of panel)
     if(mx>=px+pw-42&&mx<=px+pw-10&&my>=py+10&&my<=py+42){playSFX('click');_settingsFrom='paused';state='settings';return;}
-    const actBtns2 = ['resume','title'];
-    actBtns2.forEach((action, i) => {
-      const by = contentY + i * 54;
-      if (mx >= px+40 && mx <= px+pw-40 && my >= by && my <= by+42) {
+    // ボタン（管理者モード時は3ボタン、通常は2ボタン）
+    const actActions = _adminMode ? ['resume','admin','title'] : ['resume','title'];
+    actActions.forEach((action, i) => {
+      const by2 = contentY + i * 50;
+      if (mx >= px+40 && mx <= px+pw-40 && my >= by2 && my <= by2+38) {
+        playSFX('click');
         if (action === 'resume') state = 'playing';
         else if (action === 'title') { goToTitle(); challengeMode = false; }
+        else if (action === 'admin') { state = 'adminPanel'; }
       }
     });
-    // Guide button
-    const guideY2 = contentY + 118;
+    // Guide button（ボタン数に応じてY位置調整）
+    const btnCount = _adminMode ? 3 : 2;
+    const guideY2 = contentY + btnCount * 50 + 8;
     if (mx >= px+20 && mx <= px+pw-20 && my >= guideY2 && my <= guideY2+26) {
       guideFrom='paused'; state = 'guide'; guideState.scroll = 0;
     }
@@ -9885,6 +9975,142 @@ function togglePause() {
   else if (state === 'paused') { state = 'playing'; }
 }
 
+// ===== ADMIN PANEL SCREEN =====
+function drawAdminPanel() {
+  // 背景
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#0a0020'); grad.addColorStop(1,'#150030');
+  ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+
+  const pw = Math.min(520, W-20), ph = Math.min(560, H-40);
+  const px = (W-pw)/2, py = (H-ph)/2;
+
+  ctx.fillStyle = 'rgba(12,2,30,0.97)';
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(px,py,pw,ph,16); else ctx.rect(px,py,pw,ph);
+  ctx.fill();
+  ctx.strokeStyle = '#9933cc'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(px,py,pw,ph,16); else ctx.rect(px,py,pw,ph);
+  ctx.stroke();
+
+  // タイトル
+  ctx.save();
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.shadowBlur=20; ctx.shadowColor='#cc44ff';
+  ctx.fillStyle='#ffccff'; ctx.font='bold 20px monospace';
+  ctx.fillText('👑 管理者パネル', W/2, py+26);
+  ctx.shadowBlur=0; ctx.restore();
+
+  ctx.strokeStyle='rgba(150,60,220,0.4)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(px+16,py+46); ctx.lineTo(px+pw-16,py+46); ctx.stroke();
+
+  // セクション1：ゲーム操作
+  const secW = (pw-36)/2, sec1X = px+12, sec2X = px+12+secW+12;
+  let y1 = py+58, y2 = py+58;
+
+  function _apBtn(label, col, x, y, w=secW, h=34) {
+    const hov = lastMX>=x&&lastMX<=x+w&&lastMY>=y&&lastMY<=y+h;
+    ctx.fillStyle = hov ? col : col+'99';
+    ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(x,y,w,h,8); else ctx.rect(x,y,w,h);
+    ctx.fill();
+    ctx.strokeStyle = col; ctx.lineWidth=1.2;
+    ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(x,y,w,h,8); else ctx.rect(x,y,w,h);
+    ctx.stroke();
+    ctx.fillStyle='#ffffff'; ctx.font='bold 12px monospace';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(label, x+w/2, y+h/2);
+    return { x, y, w, h };
+  }
+  function _apToggle(label, val, col, x, y, w=secW, h=34) {
+    const hov = lastMX>=x&&lastMX<=x+w&&lastMY>=y&&lastMY<=y+h;
+    ctx.fillStyle = val ? col : (hov ? col+'cc' : 'rgba(30,10,60,0.8)');
+    ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(x,y,w,h,8); else ctx.rect(x,y,w,h);
+    ctx.fill();
+    ctx.strokeStyle = val ? col : (hov ? col : '#553366'); ctx.lineWidth = val ? 2 : 1;
+    ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(x,y,w,h,8); else ctx.rect(x,y,w,h);
+    ctx.stroke();
+    ctx.fillStyle = val ? '#001400' : '#ffffff';
+    ctx.font='bold 12px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(label + (val?' ✅':' ⬜'), x+w/2, y+h/2);
+    return { x, y, w, h };
+  }
+  function _secLabel(label, x, y) {
+    ctx.fillStyle='#aa88cc'; ctx.font='bold 10px monospace';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(label, x, y+5);
+  }
+
+  _secLabel('── ゲーム操作 ──', sec1X, y1); y1+=18;
+  const b_inv    = _apToggle(_adminBar.invincible?'🛡 無敵 ON':'🛡 無敵 OFF', _adminBar.invincible, '#22cc66', sec1X, y1); y1+=38;
+  const b_ohit   = _apToggle(_adminBar.oneHit?'💀 ワンパン ON':'💀 ワンパン OFF', _adminBar.oneHit, '#ff3377', sec1X, y1); y1+=38;
+  const b_lvup   = _apBtn('⬆ レベルアップ', '#3399ff', sec1X, y1); y1+=38;
+  const b_skill  = _apBtn('🔮 スキルゲージMAX', '#cc44ff', sec1X, y1); y1+=38;
+  const b_chest  = _apBtn('📦 宝箱出現', '#ffcc00', sec1X, y1); y1+=38;
+
+  _secLabel('── 召喚 ──', sec2X, y2); y2+=18;
+  const b_slime  = _apBtn('👾 スライム召喚', '#44bb44', sec2X, y2); y2+=38;
+  const b_skel   = _apBtn('💀 スケルトン召喚', '#aaaaaa', sec2X, y2); y2+=38;
+  const b_purin  = _apBtn('🍮 ぷりん召喚', '#ffcc44', sec2X, y2); y2+=38;
+
+  _secLabel('── データ ──', sec2X, y2); y2+=18;
+  const b_coin   = _apBtn('💰 +99999コイン', '#ff9900', sec2X, y2); y2+=38;
+  const b_shreset= _apBtn('🔄 ショップリセット', '#aa44aa', sec2X, y2); y2+=38;
+
+  // 区切り
+  const divY = Math.max(y1, y2) + 8;
+  ctx.strokeStyle='rgba(150,60,220,0.4)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(px+16,divY); ctx.lineTo(px+pw-16,divY); ctx.stroke();
+
+  // 現在の状態表示
+  ctx.fillStyle='#776699'; ctx.font='11px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(`💰 コイン: ${shopCoins}  |  💀 キル: ${killCount}  |  ⭐ Lv.${player?player.level:'?'}`, W/2, divY+14);
+
+  // 戻るボタン
+  const backW=180, backH=34, backX=(W-backW)/2, backY=divY+28;
+  const backHov=lastMX>=backX&&lastMX<=backX+backW&&lastMY>=backY&&lastMY<=backY+backH;
+  ctx.fillStyle=backHov?'rgba(80,30,120,0.95)':'rgba(40,10,70,0.85)';
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(backX,backY,backW,backH,17); else ctx.rect(backX,backY,backW,backH);
+  ctx.fill();
+  ctx.strokeStyle='#8844cc'; ctx.lineWidth=1.5;
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(backX,backY,backW,backH,17); else ctx.rect(backX,backY,backW,backH);
+  ctx.stroke();
+  ctx.fillStyle='#ddbbff'; ctx.font='bold 13px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('← ポーズへ戻る', backX+backW/2, backY+backH/2);
+
+  // クリック判定保存
+  _adminPanelUI = { b_inv, b_ohit, b_lvup, b_skill, b_chest,
+    b_slime, b_skel, b_purin, b_coin, b_shreset,
+    backX, backY, backW, backH };
+}
+
+let _adminPanelUI = null;
+
+function handleAdminPanelClick(mx, my) {
+  if (!_adminPanelUI) return;
+  const u = _adminPanelUI;
+  const hit = (b) => b && mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h;
+  if (hit(u.b_inv))     { _adminBar.invincible=!_adminBar.invincible; playSFX('click'); }
+  if (hit(u.b_ohit))    { _adminBar.oneHit=!_adminBar.oneHit; playSFX('click'); }
+  if (hit(u.b_lvup))    { _adminLevelUp(); playSFX('levelup'); }
+  if (hit(u.b_skill))   { if(player) skillCooldown=0; playSFX('click'); }
+  if (hit(u.b_chest))   { _adminSpawnChest(); playSFX('buy'); }
+  if (hit(u.b_slime))   { _adminSpawnEnemy('slime'); playSFX('click'); }
+  if (hit(u.b_skel))    { _adminSpawnEnemy('skeleton'); playSFX('click'); }
+  if (hit(u.b_purin))   { spawnBoss(); playSFX('click'); }
+  if (hit(u.b_coin))    { _adminAddCoins(99999); playSFX('buy'); }
+  if (hit(u.b_shreset)) { _adminResetShop(); playSFX('click'); }
+  if (mx>=u.backX&&mx<=u.backX+u.backW&&my>=u.backY&&my<=u.backY+u.backH) {
+    playSFX('click'); state='paused';
+  }
+}
+
 function drawPauseMenu() {
   // Show game behind
   drawBG(); drawPuddlesAndTornados(); drawGems(); drawWeapons();
@@ -9915,23 +10141,27 @@ function drawPauseMenu() {
   ctx.restore();
 
   const contentY = py + 78;
-  // Three action buttons
+  // Action buttons
   const actBtns = [
     { label: '▶ ゲーム再開', color: '#33aa33', action: 'resume' },
     { label: '🏠 タイトルへ戻る', color: '#aa3333', action: 'title' },
   ];
+  // 管理者モード中は専用パネルボタンを追加
+  if (_adminMode) {
+    actBtns.splice(1, 0, { label: '👑 管理者パネル', color: '#9933cc', action: 'admin' });
+  }
   actBtns.forEach((btn, i) => {
-    const by = contentY + i * 54;
-    const isH = lastMX >= px+40 && lastMX <= px+pw-40 && lastMY >= by && lastMY <= by+42;
+    const by2 = contentY + i * 50;
+    const isH = lastMX >= px+40 && lastMX <= px+pw-40 && lastMY >= by2 && lastMY <= by2+38;
     if(isH){ ctx.save(); ctx.shadowBlur=16; ctx.shadowColor=btn.color; }
     ctx.fillStyle = isH ? btn.color : btn.color + '88';
-    rr(ctx, px+40, by, pw-80, 42, 21); ctx.fill();
+    rr(ctx, px+40, by2, pw-80, 38, 19); ctx.fill();
     ctx.strokeStyle = btn.color; ctx.lineWidth = isH ? 2.5 : 1.5;
-    rr(ctx, px+40, by, pw-80, 42, 21); ctx.stroke();
+    rr(ctx, px+40, by2, pw-80, 38, 19); ctx.stroke();
     if(isH) ctx.restore();
-    ctx.fillStyle = 'white'; ctx.font = 'bold 16px monospace';
+    ctx.fillStyle = 'white'; ctx.font = 'bold 15px monospace';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(btn.label, W/2, by + 21);
+    ctx.fillText(btn.label, W/2, by2 + 19);
   });
 
   // 武器・敵ガイド full guide - inline mini version
@@ -13103,7 +13333,6 @@ function checkMaouBuff(dt) {
     playSFXBossApp();
   }
   updateBossCutin(dt);
-  updateBossCutin(dt);
   if (maouCutin) {
     maouCutin.progress += dt * 0.55;
     if (maouCutin.progress >= 4.5) maouCutin = null;
@@ -13787,6 +14016,7 @@ function drawEnding(dt) {
 function updateGame(dt) {
   if (state !== 'playing') return;
   gameTime += dt;
+  applyAdminEffects(); // 管理者モード効果（無敵・ワンパン）
   updateSpawn(dt);
   checkMaouBuff(dt);
   checkMidBoss();
@@ -13824,7 +14054,7 @@ function updateGame(dt) {
   // Boss spawn every 2 minutes
   waveSystem.bossTimer -= dt;
   if (waveSystem.bossTimer <= 0) {
-    waveSystem.bossTimer = 120;
+    waveSystem.bossTimer = 240;
     spawnBoss();
     fxList.push({ type: 'text', x: player.x, y: player.y - 70, text: '🍮 ぷりん殿下 出現！', life: 2.5, color: '#ff4444', vy: -25, big: true });
     playSFX('bossapp');
@@ -13854,6 +14084,7 @@ function loop(ts) {
     case 'select':      drawSelect();  break;
     case 'playing':     updateGame(dt); if(challengeMode)updateChallenge(dt); drawGame(); break;
     case 'paused':      drawPauseMenu(); break;
+    case 'adminPanel':  drawAdminPanel(); break;
     case 'shop':        drawShopScreen(); break;
     case 'levelup':     updateFX(dt); drawLevelUp(); break;
     case 'chest':      updateFX(dt); drawChestScreen(); break;
@@ -14000,6 +14231,192 @@ let _settingsDamageNum= true;  // ダメージ数値表示
 let _settingsParticle = true;  // パーティクルエフェクト
 let _settingsResetConfirm = false; // データリセット確認フラグ
 
+// ── 管理者モード ────────────────────────────────────────────────────────────
+const ADMIN_PASSWORD = 'kepoyan0323';
+let _adminMode = false;
+let _adminPWInput = '';
+let _adminPWActive = false;
+let _adminPWError = false;
+let _adminPWErrorTimer = 0;
+let _adminBarBtns = [];
+let _adminBar = { invincible: false, oneHit: false };
+
+function toggleAdminMode() {
+  if (_adminMode) {
+    _adminMode = false;
+    _adminBar.invincible = false;
+    _adminBar.oneHit = false;
+  } else {
+    _showAdminPWDialog();
+  }
+}
+
+function _showAdminPWDialog() {
+  const dlg = document.getElementById('adminDialog');
+  const field = document.getElementById('adminPWField');
+  const err = document.getElementById('adminPWError');
+  if (!dlg || !field) return;
+  field.value = '';
+  err.textContent = '';
+  dlg.style.display = 'flex';
+  setTimeout(() => field.focus(), 80);
+
+  document.getElementById('adminPWOk').onclick = () => {
+    if (field.value === ADMIN_PASSWORD) {
+      _adminMode = true;
+      dlg.style.display = 'none';
+      fxList.push({type:'text',x:W/2,y:H/2-40,text:'👑 管理者モード ON',life:2.5,color:'#cc44ff',vy:-28,big:true});
+      playSFX('buy');
+    } else {
+      err.textContent = 'パスワードが違います';
+      field.value = '';
+      field.focus();
+    }
+  };
+  document.getElementById('adminPWCancel').onclick = () => {
+    dlg.style.display = 'none';
+  };
+  field.onkeydown = (e) => {
+    if (e.key === 'Enter') document.getElementById('adminPWOk').click();
+    if (e.key === 'Escape') document.getElementById('adminPWCancel').click();
+    e.stopPropagation(); // ゲームキー入力に干渉しない
+  };
+}
+function _adminAddCoins(n) { shopCoins = Math.min(shopCoins + n, 999999); saveGameData(); }
+function _adminResetShop() { ownedPassives = []; saveGameData(); }
+function _adminLevelUp() {
+  if (state !== 'playing' || !player) return;
+  player.exp = player.maxExp; checkLevelUp();
+}
+function _adminSpawnChest() {
+  if (!player) return;
+  chests.push({ x: player.x + 60, y: player.y, bobT: 0, sparkleT: 0, life: 30, open: false });
+}
+function _adminSpawnEnemy(type) {
+  if (!player) return;
+  const a = Math.random() * Math.PI * 2;
+  const e = createEnemy(type, player.x + Math.cos(a)*250, player.y + Math.sin(a)*250, false);
+  if (e) enemies.push(e);
+}
+
+function drawAdminBar() {
+  if (!_adminMode || state !== 'playing') return;
+
+  const bx = 4, bw = 110, btnH = 30, gap = 4, by = 54;
+  const btns = [
+    { label: '🛡 無敵',    sub: _adminBar.invincible ? 'ON' : 'OFF', key: 'inv',     toggle: true,  active: _adminBar.invincible, col: '#22cc66' },
+    { label: '💀 ワンパン', sub: _adminBar.oneHit    ? 'ON' : 'OFF', key: 'onehit',  toggle: true,  active: _adminBar.oneHit,    col: '#ff3377' },
+    { label: '⬆ LvUP',    sub: '',                                   key: 'lvup',    toggle: false, active: false, col: '#3399ff' },
+    { label: '📦 宝箱',    sub: '',                                   key: 'chest',   toggle: false, active: false, col: '#ffcc00' },
+    { label: '💰 +99999',  sub: '',                                   key: 'coin',    toggle: false, active: false, col: '#ff9900' },
+    { label: '🔮 スキルMAX',sub: '',                                  key: 'skill',   toggle: false, active: false, col: '#cc44ff' },
+    { label: '🍮 ぷりん',  sub: '',                                   key: 'boss',    toggle: false, active: false, col: '#ffcc44' },
+    { label: '👾 スライム', sub: '',                                   key: 'sl',      toggle: false, active: false, col: '#44bb44' },
+    { label: '💀 スケルトン',sub: '',                                  key: 'sk',      toggle: false, active: false, col: '#aaaaaa' },
+    { label: '🔄 SHPリセット',sub: '',                                key: 'shreset', toggle: false, active: false, col: '#aa44aa' },
+  ];
+
+  const totalH = btns.length * (btnH + gap) + 30;
+
+  // ── 外枠パネル ──────────────────────────────────────────────────────
+  ctx.save();
+  ctx.fillStyle = 'rgba(8,0,20,0.92)';
+  ctx.strokeStyle = '#9933ff';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(bx - 2, by - 22, bw + 4, totalH, 10);
+  else ctx.rect(bx - 2, by - 22, bw + 4, totalH);
+  ctx.fill();
+  ctx.stroke();
+
+  // ── ADMINラベル ─────────────────────────────────────────────────────
+  ctx.fillStyle = '#dd88ff';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('👑 ADMIN MODE', bx + bw / 2, by - 11);
+
+  // ── ボタン描画 ──────────────────────────────────────────────────────
+  btns.forEach((b, i) => {
+    const ty = by + i * (btnH + gap);
+    const hov = lastMX >= bx && lastMX <= bx + bw && lastMY >= ty && lastMY <= ty + btnH;
+
+    // ボタン背景
+    if (b.active) {
+      ctx.fillStyle = b.col;
+    } else if (hov) {
+      ctx.fillStyle = 'rgba(100,40,180,0.95)';
+    } else {
+      ctx.fillStyle = 'rgba(30,10,60,0.90)';
+    }
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(bx, ty, bw, btnH, 5);
+    else ctx.rect(bx, ty, bw, btnH);
+    ctx.fill();
+
+    // ボタン枠（アクティブ時は色付き）
+    ctx.strokeStyle = b.active ? b.col : (hov ? '#aa66ff' : '#44224488');
+    ctx.lineWidth = b.active ? 2 : 1;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(bx, ty, bw, btnH, 5);
+    else ctx.rect(bx, ty, bw, btnH);
+    ctx.stroke();
+
+    // ラベルテキスト
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    if (b.toggle && b.sub !== '') {
+      // トグルボタン：ラベルと状態を2行に
+      ctx.fillStyle = b.active ? '#001800' : '#ffffff';
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText(b.label, bx + bw / 2, ty + btnH / 2 - 5);
+      ctx.font = 'bold 10px monospace';
+      ctx.fillStyle = b.active ? '#001800' : (b.sub === 'ON' ? '#44ff88' : '#ff6666');
+      ctx.fillText(b.sub, bx + bw / 2, ty + btnH / 2 + 8);
+    } else {
+      ctx.fillStyle = b.active ? '#001800' : '#ffffff';
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText(b.label, bx + bw / 2, ty + btnH / 2);
+    }
+  });
+
+  ctx.restore();
+
+  // クリック判定用に座標を保存
+  _adminBarBtns = btns.map((b, i) => ({ ...b, x: bx, y: by + i * (btnH + gap), w: bw, h: btnH }));
+}
+
+function handleAdminBarClick(mx, my) {
+  if (!_adminMode || state !== 'playing') return false;
+  for (const b of _adminBarBtns) {
+    if (mx>=b.x && mx<=b.x+b.w && my>=b.y && my<=b.y+b.h) {
+      if (b.key==='inv')     { _adminBar.invincible=!_adminBar.invincible; playSFX('click'); }
+      if (b.key==='onehit')  { _adminBar.oneHit=!_adminBar.oneHit; playSFX('click'); }
+      if (b.key==='lvup')    { _adminLevelUp(); playSFX('levelup'); }
+      if (b.key==='chest')   { _adminSpawnChest(); playSFX('buy'); }
+      if (b.key==='coin')    { _adminAddCoins(99999); playSFX('buy'); }
+      if (b.key==='shreset') { _adminResetShop(); playSFX('click'); }
+      if (b.key==='sl')      { _adminSpawnEnemy('slime'); playSFX('click'); }
+      if (b.key==='sk')      { _adminSpawnEnemy('skeleton'); playSFX('click'); }
+      if (b.key==='boss')    { spawnBoss(); playSFX('click'); }
+      if (b.key==='skill')   { if(player) skillCooldown=0; playSFX('click'); }
+      return true;
+    }
+  }
+  return false;
+}
+
+function applyAdminEffects() {
+  if (!_adminMode || !player) return;
+  if (_adminBar.invincible) { player.hp = player.maxHp; player.invincible = 99; }
+  if (_adminBar.oneHit) {
+    for (const e of enemies) {
+      if (!e.isFinalBoss && (e.invincible <= 0 || !e.invincible)) { e.hp = 0; }
+    }
+  }
+}
+
 // ── 設定画面 ──────────────────────────────────────────────────────────────
 function drawSettingsScreen() {
   const grad = ctx.createLinearGradient(0,0,0,H);
@@ -14010,7 +14427,7 @@ function drawSettingsScreen() {
     ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
   }
 
-  const pw = Math.min(380, W - 20), ph = Math.min(500, H - 80);
+  const pw = Math.min(380, W - 20), ph = Math.min(530, H - 60);
   const px = (W - pw) / 2, py = Math.max(10, (H - ph) / 2 - 10);
 
   ctx.fillStyle = 'rgba(18,6,42,0.95)';
@@ -14113,6 +14530,19 @@ function drawSettingsScreen() {
   ctx.strokeStyle = 'rgba(130,70,200,0.35)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(px+16, py+370); ctx.lineTo(px+pw-16, py+370); ctx.stroke();
 
+  // ── 管理者モードボタン ────────────────────────────────────────────────
+  const adW=pw-32, adH=30, adX=px+16, adY=py+380;
+  const adHov=lastMX>=adX&&lastMX<=adX+adW&&lastMY>=adY&&lastMY<=adY+adH;
+  ctx.fillStyle=_adminMode
+    ? (adHov?'rgba(255,80,80,0.95)':'rgba(180,40,200,0.88)')
+    : (adHov?'rgba(100,30,180,0.9)':'rgba(50,10,90,0.75)');
+  ctx.beginPath();
+  ctx.roundRect?ctx.roundRect(adX,adY,adW,adH,10):ctx.rect(adX,adY,adW,adH);
+  ctx.fill();
+  ctx.fillStyle=_adminMode?'#ffccff':'#cc88ff';
+  ctx.font='bold 12px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(_adminMode?'👑 管理者モード：ON （タップでOFF）':'🔐 管理者モード', adX+adW/2, adY+adH/2);
+
   // バージョン
   ctx.fillStyle='rgba(100,70,140,0.7)'; ctx.font='10px monospace';
   ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -14123,7 +14553,8 @@ function drawSettingsScreen() {
   _settingsUI = { sl1, sl2, px, py, pw, ph,
     tog1, tog2, tog3,
     fsX, fsY, fsW, fsH,
-    rv1X, rv1Y, rv1W, rv1H, rv2X, rv2Y };
+    rv1X, rv1Y, rv1W, rv1H, rv2X, rv2Y,
+    adX, adY, adW, adH };
 }
 
 let _settingsUI = null;
@@ -14131,7 +14562,12 @@ let _settingsUI = null;
 function handleSettingsClick(mx, my) {
   if (!_settingsUI) return;
   const { sl1, sl2, tog1, tog2, tog3, fsX, fsY, fsW, fsH,
-          rv1X, rv1Y, rv1W, rv1H, rv2X, rv2Y } = _settingsUI;
+          rv1X, rv1Y, rv1W, rv1H, rv2X, rv2Y, adX, adY, adW, adH } = _settingsUI;
+
+  // 管理者モードボタン
+  if (adX!==undefined && mx>=adX&&mx<=adX+adW&&my>=adY&&my<=adY+adH) {
+    toggleAdminMode(); playSFX('click'); return;
+  }
 
   // ミュートボタン
   if (mx>=sl1.muteX&&mx<=sl1.muteX+sl1.muteW&&my>=sl1.muteY&&my<=sl1.muteY+sl1.muteH) {
