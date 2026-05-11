@@ -3167,11 +3167,11 @@ function playSFX(type) {
     case 'gemcoll':   playSFXGemColl();   break;
     case 'hurt':      playSFXHurt();      break;
     case 'click': {
-      // Crisp UI click: short high tick
+      // やわらかいUI音：sineベース、低音量・短め
       const o=audioCtx.createOscillator(); const g2=audioCtx.createGain();
-      o.type='square'; o.frequency.setValueAtTime(880,audioCtx.currentTime);
-      o.frequency.exponentialRampToValueAtTime(440,audioCtx.currentTime+0.06);
-      g2.gain.setValueAtTime(0.12,audioCtx.currentTime);
+      o.type='sine'; o.frequency.setValueAtTime(520,audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(380,audioCtx.currentTime+0.055);
+      g2.gain.setValueAtTime(0.055,audioCtx.currentTime);
       g2.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.07);
       o.connect(g2); g2.connect(sfxGain);
       o.start(audioCtx.currentTime); o.stop(audioCtx.currentTime+0.08);
@@ -3469,8 +3469,8 @@ const ENEMY_LORE = {
     story:'オーロラを纏った、雪山のラスボス。\n空の美しさを守るのが彼のお仕事。\n地上に降りてくることは滅多にないけれど、\nたまに子供たちが作った雪だるまをこっそり眺めている。', color:'#88ddff' },
   clione: { name:'🫧 クリオネ', hp:'弱い', atk:'弱い', speed:'速い',
     story:'透き通った体の海の天使。\n触手でつっついてくる。\n本当はとても繊細。', color:'#88ddff' },
-  jellyfish: { name:'⚡ 電撃クラゲ', hp:'普通', atk:'普通', speed:'遅め',
-    story:'電気を帯びたクラゲ。\n触れるとビリビリ痺れる。\n光ってるから見えやすいのに怖い。', color:'#44aaee' },
+  jellyfish: { name:'⚡ 電気クラゲ', hp:'普通', atk:'普通', speed:'遅め',
+    story:'海底から迷い込んだ電気クラゲ。\nふわふわ漂いながら電撃を放つ。\n光っているのは暗いところが怖いからで、\nかなりのビビリらしい。', color:'#44aaee' },
   seahorse: { name:'🔮 まほうタツノオトシゴ', hp:'弱い', atk:'弱い', speed:'普通',
     story:'魔法を使う不思議な生き物。\n猫耳が生えていてとっても珍しい。\n見つけると幸運が訪れるとか。', color:'#aa88ff' },
   pufferfish: { name:'🐡 ふぐにゃん', hp:'普通', atk:'普通', speed:'遅め',
@@ -3480,10 +3480,9 @@ const ENEMY_LORE = {
   kraken: { name:'🦑 ゲソ・ド・リッチ', hp:'最高', atk:'最高', speed:'普通',
     story:'深海の知識を蓄えた、海のラスボス。\nたくさんの足で一度にたくさんの本を読めるのが自慢。\nでも、実は一番下の足がこっそりサボって\nお昼寝していることに、本人はまだ気づいていない。', color:'#113366' },
   catarmor: { name:'⚔️ キャットアーマー', hp:'高い', atk:'強い', speed:'遅め',
-    story:'回廊を守る動く鎧。\n中身はネコだが誰も知らない。\n斧を持っている。', color:'#8866aa' },
+    story:'回廊を守る動く鎧。\n中身は猫という噂がある。\n鎧が重すぎてヨロヨロしているが、\n誰も手を貸してくれないのでひとりで頑張っている。', color:'#8866aa' },
   ancientbook: { name:'📚 浮遊する古書', hp:'普通', atk:'普通', speed:'速い',
-    story:'回廊を漂う魔法の古書。\n呪文を唱えて弾を飛ばす。\n読み解けば仲間にできるかも？', color:'#9944ff' },
-  magicorb: { name:'🔮 まほうオーブ', hp:'弱い', atk:'普通', speed:'速い',
+    story:'回廊を漂う魔法の古書。呪文を唱えて弾を飛ばす、\\n実は呪文はデタラメで弾は投げているらしい。', hp:'弱い', atk:'普通', speed:'速い',
     story:'回廊に浮かぶ謎の魔法の玉。\nオーブの中に小さなネコがいる。\n怒ると周りに弾を撒き散らす。', color:'#ff88ff' },
   phantomknight: { name:'👻 ファントムナイト', hp:'高い', atk:'強い', speed:'普通',
     story:'回廊に現れる幻の騎士。\n鎧の下は幽霊で本体が見えない。\n武器が光っていて格好いい。', color:'#7755aa' },
@@ -3494,7 +3493,7 @@ const ENEMY_LORE = {
   boss: {
     name: '🍮 ぷりん殿下',
     hp: '非常に高い', atk: '非常に強い', speed: '普通',
-    story: '自分がこの世界の「真のラスボス」だと\n本気で信じ込んでいる甘やかされ育ちの子。\n負けそうになると「ボクのパパに言いつけて、\nキミのセーブデータを消してやる!」\nと泣きべそをかく。',
+    story: '自分がこの世界の「真のラスボス」だと\n本気で信じ込んでいる甘やかされ育ちの子。\n負けそうになると「ボクのパパに言いつけて\nキミのセーブデータを消してやる!」\nと言って泣きべそをかく。',
     color: '#ff2244',
   },
   crystalbat: {
@@ -3524,7 +3523,7 @@ const ENEMY_LORE = {
   abyssjellyfish: {
     name: '🪼 アビスジェリーフィッシュ',
     hp: '高い', atk: '高い', speed: '遅い',
-    story: '深海の底からゆらゆら浮いてくる不思議なクラゲ。\n触手に触れた者は暗い気持ちになると言われているが、\n本人は「お友達になりたかっただけ」と思っている。',
+    story: '深海の底からゆらゆら浮いてくる不思議なクラゲ。\n触手に触れた者は暗い気持ちになる、でも、\n本人は「お友達になりたかっただけ」と思っている。',
     color: '#223399',
   },
   willowisp: {
@@ -3825,26 +3824,37 @@ function drawGuideScreen() {
     } else {
     // ── Enemy guide ordered by stage area ────────────────────────────────
     const ENEMY_ORDER = [
-      // 草原
-      'slime','goblin','wolf','bat',
-      'ironpig','ironbull',
-      // 夜の森
-      'ghost','zombie','skeleton','scarecrow',
-      'shadowwolf','elderwissp',
-      // 墓場
-      'boneknight','bonewarrior','soulreaper',
-      'skeletonbaron',
-      // 獄炎
-      'imp','demon','hellhound','lavagolem',
-      'hellknight','hellboss','flameking',
-      // 雪山
-      'crystalbat','snowrabbit','glacialsprite','frostphantom','yeti','snowdragon',
-      // 海
-      'coralfish','abyssjellyfish','willowisp','crabgeneral','kraken',
-      // 回廊
-      'ashghost','shadowsprite','nightshade','cursedwraith','stonegolem','voidknight','blazefiend','lavaelemental',
-      'mirrormage','mastermirror',
-      // ぷりん殿下
+      // ── 草原マップ（弱→強）──
+      'slime', 'goblin', 'wolf', 'bat',
+      'ironpig',        // 中ボス
+      'ironbull',       // ラスボス
+      // ── 夜の森マップ（弱→強）──
+      'ghost', 'zombie', 'skeleton', 'scarecrow',
+      'shadowwolf',     // 中ボス
+      'elderwissp',     // ラスボス
+      // ── 墓場マップ（弱→強）──
+      'bonewarrior', 'boneknight', 'soulreaper',
+      'skeletonbaron',  // ラスボス
+      // ── 獄炎マップ（弱→強）──
+      'imp', 'demon', 'hellhound', 'lavagolem',
+      'hellknight', 'hellboss',  // 中ボス
+      'flameking',      // ラスボス
+      // ── 雪山マップ（弱→強）──
+      'crystalbat', 'snowrabbit', 'glacialsprite', 'frostphantom',
+      'yeti',           // 中ボス
+      'snowdragon',     // ラスボス
+      // ── 海マップ（弱→強）──
+      'coralfish', 'jellyfish', 'seahorse',
+      'abyssjellyfish', 'willowisp',
+      'crabgeneral',    // 中ボス
+      'kraken',         // ラスボス
+      // ── 回廊マップ（弱→強）──
+      'ashghost', 'shadowsprite', 'ancientbook', 'nightshade',
+      'catarmor', 'magicorb', 'cursedwraith', 'stonegolem',
+      'phantomknight', 'voidknight', 'blazefiend', 'lavaelemental',
+      'mirrormage',     // 中ボス
+      'mastermirror',   // ラスボス
+      // ── ぷりん殿下（真のラスボス）──
       'boss',
     ];
     const orderedEntries = ENEMY_ORDER
@@ -4332,7 +4342,9 @@ addEventListener('keydown', e => { K[e.code] = K[e.key] = 1; onKeyDown(e.code ||
 addEventListener('keyup',   e => { K[e.code] = K[e.key] = 0; });
 C.addEventListener('wheel', e => {
   if (state === 'playing' || state === 'paused') {
-    // ── ズーム：上限0.4〜2.5 ──
+    // 回廊はズーム無効
+    const stg = STAGES[selectedStage] || STAGES[0];
+    if (stg && stg.isCorridor) { e.preventDefault(); return; }
     const zoomDelta = e.deltaY > 0 ? -0.06 : 0.06;
     cam.zoom = Math.max(0.4, Math.min(2.5, (cam.zoom || 1.0) + zoomDelta));
     e.preventDefault();
@@ -4838,17 +4850,27 @@ function createEnemy(type, x, y, wave) {
 }
 
 function spawnEnemy(wave) {
-  const a = Math.random() * Math.PI * 2;
-  const d = 420 + Math.random() * 100;
-  const x = player.x + Math.cos(a) * d;
-  const y = player.y + Math.sin(a) * d;
+  const stg = STAGES[selectedStage] || STAGES[0];
+  const stgHell = stg.isHell, stgSnow = stg.isSnow, stgOcean = stg.isOcean, stgCorridor = stg.isCorridor;
+
+  let x, y;
+  if (stgCorridor) {
+    // 回廊：上か下からのみ出現（左右は廊下幅内ランダム）
+    const cx = _corridorCenterX || player.x;
+    const corrHalfW = 90;
+    x = cx + (Math.random() - 0.5) * corrHalfW * 1.6;
+    y = Math.random() < 0.5 ? player.y - 380 : player.y + 380;
+  } else {
+    const a = Math.random() * Math.PI * 2;
+    const d = 420 + Math.random() * 100;
+    x = player.x + Math.cos(a) * d;
+    y = player.y + Math.sin(a) * d;
+  }
+
   const min = gameTime / 60;
 
   let type;
   const r = Math.random();
-  const stg = STAGES[selectedStage] || STAGES[0];
-  const stgHell = stg.isHell, stgSnow = stg.isSnow, stgOcean = stg.isOcean, stgCorridor = stg.isCorridor;
-
   const stgGrave = stg.id === 'grave';
 
   // Per-stage blue/purple gem enemies (spawn after 3min)
@@ -4897,6 +4919,9 @@ function spawnEnemy(wave) {
 function spawnBoss() {
   if (player && player._trialMode) return;
   if (stageFinalBossSpawned) return;
+  // 回廊ではぷりん殿下は登場しない
+  const stg = STAGES[selectedStage] || STAGES[0];
+  if (stg.isCorridor) return;
   // カットインなし（静かに登場）
   const a = Math.random() * Math.PI * 2;
   const min = gameTime / 60;
@@ -5004,7 +5029,15 @@ function initGame() {
     charDef: c,
     moveDirX: 1, moveDirY: 0,   // direction for paw attack
   };
-  enemies = []; projs = []; gems = [];
+  enemies = [];
+  enemyBullets = [];
+  _corridorSegments = null; _corridorSeed = Date.now(); _corridorCenterX = null;
+  _corridorZoomSet = false;
+  // 回廊以外のステージはzoomをリセット
+  const _initStg = STAGES[selectedStage] || STAGES[0];
+  if (!_initStg.isCorridor) cam.zoom = cam.zoom || 1.0;
+  _initCorridorForks();
+  projs = []; gems = [];
   fxList = []; puddles = []; tornados = []; chests = []; chestChoices = null; evolvedFrom = new Set();
   cam = { x: -W / 2, y: -H / 2, zoom: cam.zoom || 1.0 }; // ズームはリセットしない
   gameTime = 0; killCount = 0;
@@ -5634,6 +5667,26 @@ function updateEnemies(dt) {
       continue;
     }
 
+    // ── 浮遊する古書: 止まって弾を飛ばす ──
+    if (e.type === 'ancientbook') {
+      e._shootTimer = (e._shootTimer || 0) - dt;
+      if (e._shootTimer <= 0 && player) {
+        e._shootTimer = 2.8 + Math.random() * 0.8;
+        // Slow projectile toward player
+        const abA = Math.atan2(player.y - e.y, player.x - e.x);
+        const abSpd = 90 + Math.random() * 30;
+        enemyBullets.push({
+          x: e.x, y: e.y,
+          vx: Math.cos(abA) * abSpd,
+          vy: Math.sin(abA) * abSpd,
+          dmg: e.dmg * 0.55,
+          size: 8, life: 4.5, maxLife: 4.5,
+          color: '#9944ff', glowColor: '#cc88ff',
+        });
+        fxList.push({ type: 'ring', x: e.x, y: e.y, r: 0, maxR: 28, life: 0.3, color: '#9944ff' });
+      }
+    }
+
     // Knockback
     if (e.knockX || e.knockY) {
       e.x += e.knockX * dt * 3.5;
@@ -5765,6 +5818,44 @@ function updateEnemies(dt) {
       }
       enemies.splice(i, 1);
     }
+  }
+}
+
+
+// ── Enemy Bullets (ancientbook etc.) ──
+let enemyBullets = [];
+
+function updateEnemyBullets(dt) {
+  for (let i = enemyBullets.length - 1; i >= 0; i--) {
+    const b = enemyBullets[i];
+    b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
+    if (b.life <= 0) { enemyBullets.splice(i, 1); continue; }
+    // Hit player
+    if (player && player.invincible <= 0) {
+      const dx = player.x - b.x, dy = player.y - b.y;
+      if (Math.sqrt(dx*dx+dy*dy) < b.size + 16) {
+        player.hp -= b.dmg;
+        player.invincible = 0.35; player.flashLife = 0.15;
+        player.knockX = -(dx/Math.sqrt(dx*dx+dy*dy)||1)*80;
+        player.knockY = -(dy/Math.sqrt(dx*dx+dy*dy)||1)*80;
+        enemyBullets.splice(i, 1); continue;
+      }
+    }
+  }
+}
+
+function drawEnemyBullets() {
+  for (const b of enemyBullets) {
+    const sx = b.x - cam.x, sy = b.y - cam.y;
+    if (sx < -40 || sx > W+40 || sy < -40 || sy > H+40) continue;
+    const alpha = Math.min(1, b.life / b.maxLife * 3);
+    ctx.save(); ctx.globalAlpha = alpha;
+    ctx.shadowBlur = 10; ctx.shadowColor = b.glowColor || b.color;
+    ctx.fillStyle = b.color;
+    ctx.beginPath(); ctx.arc(sx, sy, b.size, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.beginPath(); ctx.arc(sx - b.size*0.3, sy - b.size*0.3, b.size*0.3, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
   }
 }
 
@@ -6039,9 +6130,20 @@ function updatePlayer(dt) {
   }
 
   // Camera lerp
-  cam.x += (player.x - W / 2 - cam.x) * dt * 9;
-  cam.y += (player.y - H / 2 - cam.y) * dt * 9;
+  const stgC = STAGES[selectedStage] || STAGES[0];
+  if (stgC && stgC.isCorridor) {
+    // 回廊：X固定（ふすま壁が担当）、Y方向のみスムーズ追従（揺れ防止）
+    if (_corridorCenterX) cam.x = _corridorCenterX - W / 2;
+    cam.y += (player.y - H / 2 - cam.y) * Math.min(dt * 7, 0.15);
+    // 初回のみズームを0.78に設定（引きめの視点）
+    if (!_corridorZoomSet) { cam.zoom = 0.78; _corridorZoomSet = true; }
+  } else {
+    cam.x += (player.x - W / 2 - cam.x) * dt * 9;
+    cam.y += (player.y - H / 2 - cam.y) * dt * 9;
+  }
 }
+
+let _corridorZoomSet = false;
 
 // ===== FX UPDATE =====
 function updateFX(dt) {
@@ -6161,23 +6263,34 @@ function pickUpgrades(n) {
     if (u.id === 'wpnWhip'  && (ownedWpns.has('whip') || evolvedFrom.has('whip')))      return false;
     if (u.id === 'wpnLight' && (ownedWpns.has('lightning') || evolvedFrom.has('lightning'))) return false;
     if (u.id === 'wpnGarl'  && (ownedWpns.has('garlic') || evolvedFrom.has('garlic') || ownedWpns.has('shadowaura')))    return false;
-    if (u.id === 'wpnAura'  && (ownedWpns.has('aura') || evolvedFrom.has('aura') || ownedWpns.has('shadowaura')))    return false;
+    // wpnAura blocking is handled in cross-availability block above
     // ── 合成で消費した武器は再入手不可（orbit / shield も含む） ──
     if (u.id === 'wpnOrbit'  && evolvedFrom.has('orbit'))  return false;
     if (u.id === 'wpnShield' && evolvedFrom.has('shield')) return false;
-    // ── Orbit/Shield cross-availability: only shiro↔shield and kutsushita↔orbit ──
+    // ── Unique weapon cross-availability ──────────────────────────────────────
+    // shiro(orbit) ↔ kutsushita(shield): each can pick the other's weapon for evolution
+    // shiro(orbit) ↔ kuro(aura): can cross-pick for shadow/aura evolution
+    // kuro(aura)   ↔ shiro(orbit): same
     const _charId = CHARS[selChar]?.id;
+    // Orbit: own weapon for shiro, partner for kutsushita, cross for kuro
     if (u.id === 'wpnOrbit' && (ownedWpns.has('orbit') || evolvedFrom.has('orbit'))) {
-      // Only kutsushita (whose own weapon is shield) can pick orbit as a partner
-      if (_charId !== 'kutsushita') return false;
+      if (_charId !== 'kutsushita' && _charId !== 'kuro') return false;
     }
+    if (u.id === 'wpnOrbit' && !ownedWpns.has('orbit') && !evolvedFrom.has('orbit')) {
+      if (_charId !== 'shiro' && _charId !== 'kutsushita' && _charId !== 'kuro') return false;
+    }
+    // Shield: own weapon for kutsushita, partner for shiro
     if (u.id === 'wpnShield' && (ownedWpns.has('shield') || evolvedFrom.has('shield'))) {
-      // Only shiro (whose own weapon is orbit) can pick shield as a partner
       if (_charId !== 'shiro') return false;
     }
-    // Other chars cannot pick orbit or shield at all (they're unique weapons)
-    if (u.id === 'wpnOrbit'  && !ownedWpns.has('orbit')  && !evolvedFrom.has('orbit')  && _charId !== 'shiro'      && _charId !== 'kutsushita') return false;
-    if (u.id === 'wpnShield' && !ownedWpns.has('shield') && !evolvedFrom.has('shield') && _charId !== 'kutsushita' && _charId !== 'shiro')      return false;
+    if (u.id === 'wpnShield' && !ownedWpns.has('shield') && !evolvedFrom.has('shield')) {
+      if (_charId !== 'kutsushita' && _charId !== 'shiro') return false;
+    }
+    // Aura: own weapon for kuro, cross for shiro (shadow evolution path)
+    if (u.id === 'wpnAura' && (ownedWpns.has('aura') || evolvedFrom.has('aura') || ownedWpns.has('shadowaura'))) return false;
+    if (u.id === 'wpnAura' && !ownedWpns.has('aura') && !evolvedFrom.has('aura')) {
+      if (_charId !== 'kuro' && _charId !== 'shiro') return false;
+    }
     // Block all new-weapon upgrades when weapon slots are full (max 5, evolved=2)
     const isNewWpn = ['wpnOrbit','wpnShield','wpnRapid','wpnTriple','wpnAura','wpnWhip',
                       'wpnLight','wpnGarl','wpnFire','wpnIce','wpnBoom','wpnHoly','wpnTorn'].includes(u.id);
@@ -6188,19 +6301,42 @@ function pickUpgrades(n) {
   const evos = checkEvolutions();
   const wlvls = getWeaponLevelOptions();
   const statUpgrades = [...available].sort(() => Math.random() - 0.5);
-  // Build pool
+
+  // ── Weighted selection ──────────────────────────────
+  // All items base weight = 1.0; own/partner weapon = 1.6x
+  const charCfg = CHARS[selChar] || {};
+  const ownWpn = charCfg.wpn || '';
+  const partnerWpn = charCfg.partnerWpn || '';
+
+  function weightedPick(arr, getWeight) {
+    const total = arr.reduce((s, x) => s + getWeight(x), 0);
+    if (total <= 0) return null;
+    let r = Math.random() * total;
+    for (const x of arr) { r -= getWeight(x); if (r <= 0) return x; }
+    return arr[arr.length - 1];
+  }
+
+  function wpnWeight(wl) {
+    const t = wl.id.replace('wlvl_', '');
+    return (t === ownWpn || t === partnerWpn) ? 1.6 : 1.0;
+  }
+
   let pool = [];
+  // Evolutions first (high priority)
   if (evos.length > 0 && Math.random() < 0.90) {
     pool.push(evos[Math.floor(Math.random() * evos.length)]);
   }
-  const wlvlShuffled = wlvls.sort(() => Math.random() - 0.5);
-  for (const wl of wlvlShuffled) {
-    if (pool.length >= n) break;
-    if (!pool.find(p2 => p2.id === wl.id)) pool.push(wl);
+  // Fill remaining slots from weapon level-ups (weighted) then stats
+  const wlvlRemaining = [...wlvls];
+  while (pool.length < n && wlvlRemaining.length > 0) {
+    const picked = weightedPick(wlvlRemaining, wpnWeight);
+    if (!picked) break;
+    wlvlRemaining.splice(wlvlRemaining.indexOf(picked), 1);
+    if (!pool.find(p2 => p2.id === picked.id)) pool.push(picked);
   }
-  for (const st of statUpgrades) {
-    if (pool.length >= n) break;
-    pool.push(st);
+  const statRemaining = [...statUpgrades];
+  while (pool.length < n && statRemaining.length > 0) {
+    pool.push(statRemaining.shift());
   }
   return pool.slice(0, n);
 }
@@ -6239,6 +6375,41 @@ function makeBgCanvas() {
   bgCanvas.width = 128; bgCanvas.height = 128;
   const bctx = bgCanvas.getContext('2d');
   const stg = STAGES[selectedStage] || STAGES[0];
+
+  // ── 回廊マップ：木の廊下 + ふすま壁 ──
+  if (stg.isCorridor) {
+    // 木の床タイル（暗い飴色の板張り）
+    const floorColors = ['#160c04','#1a0e06','#130804','#1e1008'];
+    for (let row = 0; row < 8; row++) {
+      const y2 = row * 16;
+      const ci = row % floorColors.length;
+      bctx.fillStyle = floorColors[ci];
+      bctx.fillRect(0, y2, 128, 16);
+      // 木目（細い横線）
+      for (let gi = 0; gi < 3; gi++) {
+        bctx.fillStyle = 'rgba(0,0,0,0.18)';
+        bctx.fillRect(0, y2 + 4 + gi*4, 128, 1);
+      }
+      // 板の継ぎ目（縦線、交互オフセット）
+      const offset = (row % 2 === 0) ? 0 : 42;
+      for (let col = 0; col < 4; col++) {
+        bctx.fillStyle = 'rgba(0,0,0,0.35)';
+        bctx.fillRect(col*42 + offset, y2, 1, 16);
+      }
+      // 木の節（まれに）
+      if (row % 3 === 1) {
+        bctx.fillStyle = 'rgba(0,0,0,0.2)';
+        bctx.beginPath();
+        bctx.ellipse(20 + row*15, y2+8, 4, 2, 0, 0, Math.PI*2);
+        bctx.fill();
+      }
+    }
+    // 横の目地ライン
+    bctx.fillStyle = 'rgba(0,0,0,0.4)';
+    for (let row = 0; row < 8; row++) bctx.fillRect(0, row*16+15, 128, 1);
+    return;
+  }
+
   bctx.fillStyle = stg.bgColors[0]; bctx.fillRect(0, 0, 128, 128);
   for (let ty = 0; ty < 4; ty++) for (let tx = 0; tx < 4; tx++) {
     if ((tx + ty) % 2 === 0) { bctx.fillStyle = stg.bgColors[1] || stg.bgColors[0]; bctx.fillRect(tx * 32, ty * 32, 32, 32); }
@@ -6299,7 +6470,11 @@ function drawBG() {
   if (stg && stg.ambientParticle === 'lava') drawLava();
   if (stg && stg.ambientParticle === 'snow') drawSnowParticles();
   if (stg && stg.ambientParticle === 'bubbles') drawBubbles();
-  if (stg && stg.ambientParticle === 'sparks') drawCorridorSparks();
+  if (stg && stg.ambientParticle === 'sparks') {
+    drawCorridorWalls();
+    drawCorridorSparks();
+    drawCorridorForkIndicators();
+  }
 }
 
 function drawSnowParticles() {
@@ -6325,6 +6500,255 @@ function drawBubbles() {
   }
   ctx.restore();
 }
+// ── 回廊の壁（縦長の廊下）──────────────────────────────
+// Corridor segment data: generated once per corridor visit
+let _corridorSegments = null;
+let _corridorSeed = 0;
+
+function _genCorridorSegments() {
+  // Generate a vertical corridor with varying widths
+  const CORRIDOR_BASE_W = 160; // base corridor width in world units
+  const segments = [];
+  let worldY = -2000;
+  while (worldY < 12000) {
+    // Normal narrow section
+    const narrowH = 200 + Math.random() * 200;
+    segments.push({ y: worldY, h: narrowH, type: 'narrow', w: CORRIDOR_BASE_W });
+    worldY += narrowH;
+    // Occasional wider room
+    if (Math.random() < 0.35) {
+      const wideH = 150 + Math.random() * 100;
+      const wideW = CORRIDOR_BASE_W + 80 + Math.random() * 80;
+      segments.push({ y: worldY, h: wideH, type: 'wide', w: wideW });
+      worldY += wideH;
+    }
+  }
+  return segments;
+}
+
+function _getCorridorWallX(worldY) {
+  if (!_corridorSegments) return { left: W/2 - 80, right: W/2 + 80, halfW: 80 };
+  // Find which segment this Y is in
+  for (const seg of _corridorSegments) {
+    if (worldY >= seg.y && worldY < seg.y + seg.h) {
+      const halfW = seg.w / 2;
+      // Smooth transition at segment boundaries
+      const progress = (worldY - seg.y) / seg.h;
+      return { halfW };
+    }
+  }
+  return { halfW: 80 };
+}
+
+function drawCorridorWalls() {
+  const stg = STAGES[selectedStage] || STAGES[0];
+  if (!stg.isCorridor) return;
+
+  // ── 回廊の固定幅 ────────────────────────────────────────────────────
+  const CORR_W = 200; // 廊下の幅（ワールド単位）
+  // 廊下の中心X はゲーム開始時のプレイヤーX に固定
+  if (!_corridorCenterX && player) _corridorCenterX = player.x;
+  const cx = _corridorCenterX || 0;
+  const leftWall  = cx - CORR_W / 2;  // 左壁のワールドX
+  const rightWall = cx + CORR_W / 2;  // 右壁のワールドX
+
+  // スクリーン座標
+  const leftSX  = leftWall  - cam.x;   // 左壁の右端（スクリーン）
+  const rightSX = rightWall - cam.x;   // 右壁の左端（スクリーン）
+
+  // ── プレイヤーをX軸に固定 ───────────────────────────────────────────
+  if (player) {
+    const pad = player.r + 4;
+    if (player.x < leftWall  + pad) { player.x = leftWall  + pad; player.knockX = 0; }
+    if (player.x > rightWall - pad) { player.x = rightWall - pad; player.knockX = 0; }
+    // カメラX も廊下中心を常に画面中央に
+    cam.x = cx - W / 2;
+  }
+
+  // ── 壁の外側（真っ暗）───────────────────────────────────────────────
+  ctx.save();
+  ctx.fillStyle = '#060308';
+  ctx.fillRect(0, 0, Math.max(0, leftSX), H);
+  ctx.fillRect(rightSX, 0, W - rightSX, H);
+
+  // ── ふすま壁テクスチャ（左）─────────────────────────────────────────
+  _drawFusumaWall(0, leftSX, true);
+  _drawFusumaWall(rightSX, W - rightSX, false);
+
+  // ── 敵のX位置も廊下内に限定 ─────────────────────────────────────────
+  for (const e of enemies) {
+    if (!e.boss) {
+      if (e.x < leftWall + e.r)  { e.x = leftWall + e.r;  e.knockX = 0; }
+      if (e.x > rightWall - e.r) { e.x = rightWall - e.r; e.knockX = 0; }
+    }
+  }
+  ctx.restore();
+}
+
+// ふすまの壁を描画（Screen X, 幅, 左右フラグ）
+function _drawFusumaWall(sx, width, isLeft) {
+  if (width <= 0) return;
+  ctx.save();
+  // 壁の基本色（古い屋敷のふすま：薄い黄みがかった白）
+  const wallGrad = ctx.createLinearGradient(sx, 0, sx + width, 0);
+  if (isLeft) {
+    wallGrad.addColorStop(0, '#0a0608');
+    wallGrad.addColorStop(0.6, '#1a1008');
+    wallGrad.addColorStop(1, '#c8a870');
+  } else {
+    wallGrad.addColorStop(0, '#c8a870');
+    wallGrad.addColorStop(0.4, '#1a1008');
+    wallGrad.addColorStop(1, '#0a0608');
+  }
+  ctx.fillStyle = wallGrad;
+  ctx.fillRect(sx, 0, width, H);
+
+  // ふすまの幅（廊下側12px）
+  const fusumaW = Math.min(width, 40);
+  const fusumaX = isLeft ? sx + width - fusumaW : sx;
+
+  // ふすまパネル（薄い白地に格子）
+  const panelGrad = ctx.createLinearGradient(fusumaX, 0, fusumaX + fusumaW, 0);
+  panelGrad.addColorStop(0, isLeft ? '#e8dfc0' : '#8a6830');
+  panelGrad.addColorStop(1, isLeft ? '#8a6830' : '#e8dfc0');
+  ctx.fillStyle = panelGrad;
+  ctx.fillRect(fusumaX, 0, fusumaW, H);
+
+  // ふすまの格子（細かいグリッド線）
+  const gridSize = 20;
+  ctx.strokeStyle = 'rgba(120,90,40,0.5)';
+  ctx.lineWidth = 0.8;
+  // 縦線
+  for (let gx = fusumaX; gx <= fusumaX + fusumaW; gx += gridSize) {
+    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+  }
+  // 横線
+  const camOff = cam.y % gridSize;
+  for (let gy = -camOff; gy <= H; gy += gridSize) {
+    ctx.beginPath(); ctx.moveTo(fusumaX, gy); ctx.lineTo(fusumaX + fusumaW, gy); ctx.stroke();
+  }
+
+  // 壁際の柱（木の柱）
+  const postW = 6;
+  const postX = isLeft ? (sx + width - postW - fusumaW) : (sx + fusumaW);
+  const postGrad = ctx.createLinearGradient(postX, 0, postX + postW, 0);
+  postGrad.addColorStop(0, '#3a2008');
+  postGrad.addColorStop(0.5,'#6a4818');
+  postGrad.addColorStop(1, '#3a2008');
+  ctx.fillStyle = postGrad;
+  ctx.fillRect(postX, 0, postW, H);
+
+  // 柱の横木（ランダム位置に節）
+  ctx.fillStyle = '#2a1808';
+  const camY = cam.y;
+  for (let ni = 0; ni < 8; ni++) {
+    const ny = ((ni * 137 - camY) % H + H) % H;
+    ctx.fillRect(postX, ny, postW, 2);
+  }
+
+  // ろうそくの明かり（廊下との境目に橙色の光）
+  const glowX = isLeft ? sx + width - 2 : sx + 1;
+  const glowGrad = ctx.createLinearGradient(glowX - 18, 0, glowX, 0);
+  if (!isLeft) { glowGrad.addColorStop(0, 'rgba(255,140,30,0.18)'); glowGrad.addColorStop(1, 'rgba(255,140,30,0)'); }
+  else          { glowGrad.addColorStop(0, 'rgba(255,140,30,0)'); glowGrad.addColorStop(1, 'rgba(255,140,30,0.18)'); }
+  ctx.fillStyle = glowGrad;
+  ctx.fillRect(isLeft ? glowX - 18 : glowX, 0, 18, H);
+
+  // 壁際のランタン（Y方向に流れる）
+  const lanternSpacing = 200;
+  for (let li = 0; li < 6; li++) {
+    const ly = ((li * lanternSpacing - cam.y) % (lanternSpacing * 6) + lanternSpacing * 6) % (lanternSpacing * 6);
+    if (ly < -20 || ly > H + 20) continue;
+    const lx = isLeft ? sx + width - 8 : sx + 2;
+    // ランタン本体
+    ctx.fillStyle = '#cc8830';
+    ctx.fillRect(lx - 4, ly, 8, 12);
+    // 光の揺らぎ
+    const flicker = 0.3 + 0.15 * Math.sin(gameTime * 5 + li * 1.3);
+    ctx.save();
+    ctx.globalAlpha = flicker;
+    const lgrd = ctx.createRadialGradient(lx, ly + 6, 0, lx, ly + 6, 40);
+    lgrd.addColorStop(0, 'rgba(255,200,80,0.7)');
+    lgrd.addColorStop(1, 'rgba(255,140,20,0)');
+    ctx.fillStyle = lgrd;
+    ctx.beginPath(); ctx.arc(lx, ly + 6, 40, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+let _corridorCenterX = null;
+
+// ── 回廊の迷路分岐システム ────────────────────────────────────────────────
+let _corridorForks = [];
+let _corridorNextForkY = 0;
+let _corridorMazeRooms = [];
+
+function _initCorridorForks() {
+  _corridorForks = [];
+  _corridorMazeRooms = [];
+  _corridorNextForkY = 600;
+  _corridorMazeRooms.push({ y: 0, type: 'straight' });
+}
+
+function updateCorridorForks(dt) {
+  const stg = STAGES[selectedStage] || STAGES[0];
+  if (!stg.isCorridor || !player) return;
+  const cx = _corridorCenterX || player.x;
+
+  if (player.y + 600 > _corridorNextForkY) {
+    const forkY = _corridorNextForkY;
+    const hasFork = Math.random() < 0.65;
+    if (hasFork) {
+      const chestSide = Math.random() < 0.5 ? -1 : 1;
+      _corridorForks.push({ y: forkY, chestSide, chestSpawned: false, passed: false, shown: false });
+      _corridorMazeRooms.push({ y: forkY, type: 'fork', cx });
+    } else {
+      _corridorMazeRooms.push({ y: forkY, type: 'straight', cx });
+    }
+    _corridorNextForkY += 480 + Math.random() * 600;
+  }
+
+  for (const fork of _corridorForks) {
+    if (fork.passed) continue;
+    const distY = fork.y - player.y;
+    if (!fork.chestSpawned && distY < 280 && distY > -60) {
+      fork.chestSpawned = true;
+      chests.push({ x: cx + fork.chestSide * 74, y: fork.y, bobT: 0, sparkleT: 0, life: 60, open: false, _corridorFork: true });
+      if (!fork.shown) {
+        fork.shown = true;
+        fxList.push({ type:'text', x:cx, y:fork.y - 50, text:'🗝 分かれ道！宝箱あり', life:3.5, color:'#ffdd66', vy:-14 });
+      }
+    }
+    if (player.y > fork.y + 300) fork.passed = true;
+  }
+  _corridorForks = _corridorForks.filter(f => f.y > player.y - 1200);
+}
+
+function drawCorridorForkIndicators() {
+  const stg = STAGES[selectedStage] || STAGES[0];
+  if (!stg.isCorridor || !player) return;
+  const cx = _corridorCenterX || player.x;
+  for (const fork of _corridorForks) {
+    if (fork.passed || !fork.chestSpawned) continue;
+    const sy = fork.y - cam.y;
+    const sxC = cx - cam.x;
+    if (sy < -80 || sy > H + 80) continue;
+    const glowX = sxC + fork.chestSide * 74;
+    ctx.save();
+    ctx.globalAlpha = 0.16 + 0.06 * Math.sin(gameTime * 4);
+    const grd = ctx.createRadialGradient(glowX, sy, 0, glowX, sy, 50);
+    grd.addColorStop(0, 'rgba(255,215,60,0.9)');
+    grd.addColorStop(1, 'rgba(255,170,20,0)');
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(glowX, sy, 50, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(160,120,50,0.45)'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(glowX, sy, 26, Math.PI, 0); ctx.stroke();
+    ctx.restore();
+  }
+}
+
 function drawCorridorSparks() {
   ctx.save(); ctx.globalAlpha=0.35;
   for(let i=0;i<20;i++){
@@ -7536,6 +7960,7 @@ function drawGame() {
   drawWeapons();
   drawProjs();
   drawEnemies();
+  drawEnemyBullets();
   drawBeams();drawLightningSword();drawYetiBreath();drawMirrorShards();
   drawBubbles();drawFirePillars();drawLavaPools();drawTentacles();
   drawIronbullOverheat();drawShadowSnares();drawMirrorClones();
@@ -9271,37 +9696,38 @@ function onClick(mx, my) {
     const contentY = py + 78;
     // Settings gear (top-right of panel)
     if(mx>=px+pw-42&&mx<=px+pw-10&&my>=py+10&&my<=py+42){playSFX('click');_settingsFrom='paused';state='settings';return;}
-    // ボタン（管理者モード時は3ボタン、通常は2ボタン）
-    const actActions = _adminMode ? ['resume','admin','title'] : ['resume','title'];
+    // ボタン
+    const actActions = ['resume', 'title'];
     actActions.forEach((action, i) => {
       const by2 = contentY + i * 50;
       if (mx >= px+40 && mx <= px+pw-40 && my >= by2 && my <= by2+38) {
         playSFX('click');
         if (action === 'resume') state = 'playing';
         else if (action === 'title') { goToTitle(); challengeMode = false; }
-        else if (action === 'admin') { state = 'adminPanel'; }
       }
     });
-    // Guide button（ボタン数に応じてY位置調整）
-    const btnCount = _adminMode ? 3 : 2;
-    const guideY2 = contentY + btnCount * 50 + 8;
+    // Guide button
+    const guideY2 = contentY + 2 * 50 + 8;
     if (mx >= px+20 && mx <= px+pw-20 && my >= guideY2 && my <= guideY2+26) {
       guideFrom='paused'; state = 'guide'; guideState.scroll = 0;
     }
   } else if (state === 'shop') {
-    // Back button (top-right, guide style)
     if (isBackBtnClicked(mx,my)) { playSFX('click'); goToTitle(); return; }
-    // Buy item click — matches new drawShopScreen layout (cols=2, iw=(W-48)/2, ih=128, gap=10, startY=58)
-    const _siw=(W-48)/2, _sih=128, _sgap=10, _ssY=58;
+    // ── drawShopScreen と完全一致した定数 ──────────────────────────────
+    const cols=2, iw=Math.floor((W-40)/cols), ih=118, gap=8, startY=56;
     SHOP_ITEMS.forEach((item,idx)=>{
-      const col=idx%2, row=Math.floor(idx/2);
-      const ix=16+col*(_siw+_sgap);
-      const iy=_ssY+row*(_sih+_sgap)-shopView.scroll;
+      const col=idx%cols, row=Math.floor(idx/cols);
+      const ix=12+col*(iw+gap);
+      const iy=startY+6+row*(ih+gap)-shopView.scroll;
+      // カードの範囲外なら無視
+      if(iy+ih<0||iy>H) return;
       const lv=ownedPassives[item.id]||0;
-      const _buyY = iy + _sih - 38, _buyH = 30;
-      if(mx>=ix+8&&mx<=ix+_siw-8&&my>=_buyY&&my<=_buyY+_buyH){
-        if(shopCoins>=item.cost&&lv<item.maxLv){
-          shopCoins-=item.cost; ownedPassives[item.id]=lv+1;
+      const maxed=lv>=item.maxLv;
+      // 購入ボタン：drawShopScreen と完全一致
+      const buyX=ix+8, buyY=iy+ih-38, buyW=iw-16, buyH=30;
+      if(mx>=buyX&&mx<=buyX+buyW&&my>=buyY&&my<=buyY+buyH){
+        if(!maxed&&shopCoins>=item.cost){
+          shopCoins-=item.cost; ownedPassives[item.id]=(lv+1);
           playSFX('buy'); saveGameData();
         } else { playSFX('deny'); }
       }
@@ -10045,21 +10471,28 @@ function drawAdminPanel() {
     ctx.fillText(label, x, y+5);
   }
 
-  _secLabel('── ゲーム操作 ──', sec1X, y1); y1+=18;
-  const b_inv    = _apToggle(_adminBar.invincible?'🛡 無敵 ON':'🛡 無敵 OFF', _adminBar.invincible, '#22cc66', sec1X, y1); y1+=38;
-  const b_ohit   = _apToggle(_adminBar.oneHit?'💀 ワンパン ON':'💀 ワンパン OFF', _adminBar.oneHit, '#ff3377', sec1X, y1); y1+=38;
-  const b_lvup   = _apBtn('⬆ レベルアップ', '#3399ff', sec1X, y1); y1+=38;
-  const b_skill  = _apBtn('🔮 スキルゲージMAX', '#cc44ff', sec1X, y1); y1+=38;
-  const b_chest  = _apBtn('📦 宝箱出現', '#ffcc00', sec1X, y1); y1+=38;
+  // ── データ・デバッグ（左列） ──────────────────────────────────────────
+  _secLabel('── データ操作 ──', sec1X, y1); y1+=18;
+  const b_coin      = _apBtn('💰 +99999コイン',    '#ff9900', sec1X, y1); y1+=38;
+  const b_shreset   = _apBtn('🔄 ショップリセット',  '#aa44aa', sec1X, y1); y1+=38;
+  const b_achunlock = _apBtn('🏆 実績全アンロック',  '#ddaa00', sec1X, y1); y1+=38;
+  const b_saveview  = _apBtn('📋 セーブ内容確認',   '#4488cc', sec1X, y1); y1+=38;
+  const b_resetall  = _apBtn('🗑 全データ削除',     '#cc2222', sec1X, y1); y1+=38;
 
-  _secLabel('── 召喚 ──', sec2X, y2); y2+=18;
-  const b_slime  = _apBtn('👾 スライム召喚', '#44bb44', sec2X, y2); y2+=38;
-  const b_skel   = _apBtn('💀 スケルトン召喚', '#aaaaaa', sec2X, y2); y2+=38;
-  const b_purin  = _apBtn('🍮 ぷりん召喚', '#ffcc44', sec2X, y2); y2+=38;
+  // ── デバッグ（右列） ───────────────────────────────────────────────
+  _secLabel('── デバッグ ──', sec2X, y2); y2+=18;
+  const b_showfps   = _apBtn('📊 FPS表示 ON/OFF',   '#66aaff', sec2X, y2); y2+=38;
+  const b_showcol   = _apBtn('🔲 当たり判定表示',   '#ff88aa', sec2X, y2); y2+=38;
+  const b_godgame   = _apBtn('⏩ 時間10分進める',   '#aa66ff', sec2X, y2); y2+=38;
+  const b_nowav     = _apBtn('🌊 ウェーブスキップ',  '#55ccaa', sec2X, y2); y2+=38;
+  const b_clrenem   = _apBtn('🧹 敵を全消去',       '#ff8844', sec2X, y2); y2+=38;
 
-  _secLabel('── データ ──', sec2X, y2); y2+=18;
-  const b_coin   = _apBtn('💰 +99999コイン', '#ff9900', sec2X, y2); y2+=38;
-  const b_shreset= _apBtn('🔄 ショップリセット', '#aa44aa', sec2X, y2); y2+=38;
+  // ダミー（使われないがUI保持のため）
+  const b_inv={x:0,y:0,w:0,h:0}; const b_ohit={x:0,y:0,w:0,h:0};
+  const b_maxexp={x:0,y:0,w:0,h:0}; const b_heal={x:0,y:0,w:0,h:0};
+  const b_allwpn={x:0,y:0,w:0,h:0}; const b_slime={x:0,y:0,w:0,h:0};
+  const b_skel={x:0,y:0,w:0,h:0}; const b_purin={x:0,y:0,w:0,h:0};
+  const b_killall={x:0,y:0,w:0,h:0};
 
   // 区切り
   const divY = Math.max(y1, y2) + 8;
@@ -10082,11 +10515,11 @@ function drawAdminPanel() {
   if(ctx.roundRect) ctx.roundRect(backX,backY,backW,backH,17); else ctx.rect(backX,backY,backW,backH);
   ctx.stroke();
   ctx.fillStyle='#ddbbff'; ctx.font='bold 13px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('← ポーズへ戻る', backX+backW/2, backY+backH/2);
+  ctx.fillText('← 設定へ戻る', backX+backW/2, backY+backH/2);
 
   // クリック判定保存
-  _adminPanelUI = { b_inv, b_ohit, b_lvup, b_skill, b_chest,
-    b_slime, b_skel, b_purin, b_coin, b_shreset,
+  _adminPanelUI = { b_coin, b_shreset, b_achunlock, b_saveview, b_resetall,
+    b_showfps, b_showcol, b_godgame, b_nowav, b_clrenem,
     backX, backY, backW, backH };
 }
 
@@ -10096,18 +10529,34 @@ function handleAdminPanelClick(mx, my) {
   if (!_adminPanelUI) return;
   const u = _adminPanelUI;
   const hit = (b) => b && mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h;
-  if (hit(u.b_inv))     { _adminBar.invincible=!_adminBar.invincible; playSFX('click'); }
-  if (hit(u.b_ohit))    { _adminBar.oneHit=!_adminBar.oneHit; playSFX('click'); }
-  if (hit(u.b_lvup))    { _adminLevelUp(); playSFX('levelup'); }
-  if (hit(u.b_skill))   { if(player) skillCooldown=0; playSFX('click'); }
-  if (hit(u.b_chest))   { _adminSpawnChest(); playSFX('buy'); }
-  if (hit(u.b_slime))   { _adminSpawnEnemy('slime'); playSFX('click'); }
-  if (hit(u.b_skel))    { _adminSpawnEnemy('skeleton'); playSFX('click'); }
-  if (hit(u.b_purin))   { spawnBoss(); playSFX('click'); }
-  if (hit(u.b_coin))    { _adminAddCoins(99999); playSFX('buy'); }
-  if (hit(u.b_shreset)) { _adminResetShop(); playSFX('click'); }
+  if (hit(u.b_coin))      { _adminAddCoins(99999); playSFX('buy'); }
+  if (hit(u.b_shreset))   { _adminResetShop(); playSFX('click'); }
+  if (hit(u.b_saveview))  {
+    try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');
+      alert('💾 セーブデータ\n'+JSON.stringify(d,null,2).slice(0,800));}catch(e){alert('データなし');}
+    playSFX('click');
+  }
+  if (hit(u.b_resetall))  {
+    if(confirm('⚠ 全データを削除しますか？')){
+      try{localStorage.removeItem(SAVE_KEY);}catch(e){}
+      shopCoins=0;ownedPassives={};achievementsUnlocked={};difficultyLevel=1;
+      playSFX('click');
+      fxList.push({type:'text',x:W/2,y:H/2-40,text:'🗑 データ全削除',life:2.5,color:'#ff4444',vy:-25,big:true});
+    }
+  }
+  if (hit(u.b_showfps))   { _settingsShowFPS=!_settingsShowFPS; saveSettingsData(); playSFX('click'); }
+  if (hit(u.b_showcol))   { _adminShowCollision=!_adminShowCollision; playSFX('click'); }
+  if (hit(u.b_godgame))   { gameTime+=600; playSFX('click');
+    fxList.push({type:'text',x:W/2,y:H/2-40,text:'⏩ 時間+10分',life:2,color:'#aa66ff',vy:-25,big:true}); }
+  if (hit(u.b_nowav))     { waveSystem.bossTimer=9999; waveSystem.waveTimer=0; playSFX('click'); }
+  if (hit(u.b_clrenem))   { enemies.length=0; playSFX('click'); }
+  if (hit(u.b_achunlock)) {
+    ACHIEVEMENTS.forEach(a => { achievementsUnlocked[a.id] = true; });
+    saveGameData(); playSFX('buy');
+    fxList.push({type:'text',x:W/2,y:H/2-40,text:'🏆 全実績アンロック！',life:2.5,color:'#ffdd00',vy:-25,big:true});
+  }
   if (mx>=u.backX&&mx<=u.backX+u.backW&&my>=u.backY&&my<=u.backY+u.backH) {
-    playSFX('click'); state='paused';
+    playSFX('click'); state = 'settings';
   }
 }
 
@@ -10146,10 +10595,6 @@ function drawPauseMenu() {
     { label: '▶ ゲーム再開', color: '#33aa33', action: 'resume' },
     { label: '🏠 タイトルへ戻る', color: '#aa3333', action: 'title' },
   ];
-  // 管理者モード中は専用パネルボタンを追加
-  if (_adminMode) {
-    actBtns.splice(1, 0, { label: '👑 管理者パネル', color: '#9933cc', action: 'admin' });
-  }
   actBtns.forEach((btn, i) => {
     const by2 = contentY + i * 50;
     const isH = lastMX >= px+40 && lastMX <= px+pw-40 && lastMY >= by2 && lastMY <= by2+38;
@@ -14016,8 +14461,9 @@ function drawEnding(dt) {
 function updateGame(dt) {
   if (state !== 'playing') return;
   gameTime += dt;
-  applyAdminEffects(); // 管理者モード効果（無敵・ワンパン）
+  applyAdminEffects();
   updateSpawn(dt);
+  updateCorridorForks(dt); // 回廊の分かれ道システム
   checkMaouBuff(dt);
   checkMidBoss();
   updateAchievements(dt);
@@ -14046,6 +14492,7 @@ function updateGame(dt) {
   updateWeapons(dt);
   updateSpecialWeapons(dt);
   updateEnemies(dt);
+  updateEnemyBullets(dt);
   updateChests(dt);
   updateProjs(dt);
   updateGems(dt);
@@ -14286,7 +14733,21 @@ function _adminAddCoins(n) { shopCoins = Math.min(shopCoins + n, 999999); saveGa
 function _adminResetShop() { ownedPassives = []; saveGameData(); }
 function _adminLevelUp() {
   if (state !== 'playing' || !player) return;
-  player.exp = player.maxExp; checkLevelUp();
+  const needed = Math.max(1, player.expNext - player.exp);
+  player.exp += needed;
+  while (player.exp >= player.expNext) {
+    player.exp -= player.expNext;
+    player.level++;
+    player.expNext = 60 + player.level * 42;
+    if (!player._trialMode) levelUpPending++;
+    fxList.push({ type: 'text', x: player.x, y: player.y - 50,
+      text: '⭐ LEVEL UP!', life: 1.5, color: '#ffff44', vy: -40, big: true });
+  }
+  if (levelUpPending > 0) {
+    levelUpPending--;
+    lvlChoices = pickUpgrades(3);
+    state = 'levelup';
+  }
 }
 function _adminSpawnChest() {
   if (!player) return;
@@ -14302,89 +14763,71 @@ function _adminSpawnEnemy(type) {
 function drawAdminBar() {
   if (!_adminMode || state !== 'playing') return;
 
-  const bx = 4, bw = 110, btnH = 30, gap = 4, by = 54;
+  const bx = 4, bw = 112, btnH = 26, gap = 3, by = 80;
   const btns = [
-    { label: '🛡 無敵',    sub: _adminBar.invincible ? 'ON' : 'OFF', key: 'inv',     toggle: true,  active: _adminBar.invincible, col: '#22cc66' },
-    { label: '💀 ワンパン', sub: _adminBar.oneHit    ? 'ON' : 'OFF', key: 'onehit',  toggle: true,  active: _adminBar.oneHit,    col: '#ff3377' },
-    { label: '⬆ LvUP',    sub: '',                                   key: 'lvup',    toggle: false, active: false, col: '#3399ff' },
-    { label: '📦 宝箱',    sub: '',                                   key: 'chest',   toggle: false, active: false, col: '#ffcc00' },
-    { label: '💰 +99999',  sub: '',                                   key: 'coin',    toggle: false, active: false, col: '#ff9900' },
-    { label: '🔮 スキルMAX',sub: '',                                  key: 'skill',   toggle: false, active: false, col: '#cc44ff' },
-    { label: '🍮 ぷりん',  sub: '',                                   key: 'boss',    toggle: false, active: false, col: '#ffcc44' },
-    { label: '👾 スライム', sub: '',                                   key: 'sl',      toggle: false, active: false, col: '#44bb44' },
-    { label: '💀 スケルトン',sub: '',                                  key: 'sk',      toggle: false, active: false, col: '#aaaaaa' },
-    { label: '🔄 SHPリセット',sub: '',                                key: 'shreset', toggle: false, active: false, col: '#aa44aa' },
+    // ── トグル ──
+    { label: '🛡 無敵',    sub: _adminBar.invincible ? 'ON' : 'OFF', key: 'inv',    toggle: true,  active: _adminBar.invincible, col: '#22cc66' },
+    { label: '💀 ワンパン', sub: _adminBar.oneHit    ? 'ON' : 'OFF', key: 'onehit', toggle: true,  active: _adminBar.oneHit,    col: '#ff3377' },
+    // ── ゲーム操作 ──
+    { label: '⬆ LvUP',     sub: '', key: 'lvup',   toggle: false, active: false, col: '#3399ff' },
+    { label: '🔮 スキルMAX', sub: '', key: 'skill',  toggle: false, active: false, col: '#cc44ff' },
+    { label: '📦 宝箱',     sub: '', key: 'chest',  toggle: false, active: false, col: '#ffcc00' },
+    { label: '❤ HP回復',    sub: '', key: 'heal',   toggle: false, active: false, col: '#ff5566' },
+    { label: '⏩ EXP MAX',  sub: '', key: 'maxexp', toggle: false, active: false, col: '#55aaff' },
+    // ── 召喚 ──
+    { label: '🍮 ぷりん',   sub: '', key: 'boss',   toggle: false, active: false, col: '#ffcc44' },
+    { label: '👾 スライム',  sub: '', key: 'sl',     toggle: false, active: false, col: '#44bb44' },
+    { label: '💀 スケルトン',sub: '', key: 'sk',     toggle: false, active: false, col: '#aaaaaa' },
+    { label: '💣 敵全滅',   sub: '', key: 'killall',toggle: false, active: false, col: '#ff4444' },
   ];
 
-  const totalH = btns.length * (btnH + gap) + 30;
+  const totalH = btns.length * (btnH + gap) + 32;
 
-  // ── 外枠パネル ──────────────────────────────────────────────────────
   ctx.save();
-  ctx.fillStyle = 'rgba(8,0,20,0.92)';
+  ctx.fillStyle = 'rgba(8,0,20,0.93)';
   ctx.strokeStyle = '#9933ff';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  if (ctx.roundRect) ctx.roundRect(bx - 2, by - 22, bw + 4, totalH, 10);
-  else ctx.rect(bx - 2, by - 22, bw + 4, totalH);
-  ctx.fill();
-  ctx.stroke();
+  if (ctx.roundRect) ctx.roundRect(bx-2, by-22, bw+4, totalH, 10);
+  else ctx.rect(bx-2, by-22, bw+4, totalH);
+  ctx.fill(); ctx.stroke();
 
-  // ── ADMINラベル ─────────────────────────────────────────────────────
-  ctx.fillStyle = '#dd88ff';
-  ctx.font = 'bold 11px monospace';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('👑 ADMIN MODE', bx + bw / 2, by - 11);
+  ctx.fillStyle = '#dd88ff'; ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('👑 ADMIN', bx + bw/2, by - 11);
 
-  // ── ボタン描画 ──────────────────────────────────────────────────────
   btns.forEach((b, i) => {
     const ty = by + i * (btnH + gap);
-    const hov = lastMX >= bx && lastMX <= bx + bw && lastMY >= ty && lastMY <= ty + btnH;
+    const hov = lastMX >= bx && lastMX <= bx+bw && lastMY >= ty && lastMY <= ty+btnH;
 
-    // ボタン背景
-    if (b.active) {
-      ctx.fillStyle = b.col;
-    } else if (hov) {
-      ctx.fillStyle = 'rgba(100,40,180,0.95)';
-    } else {
-      ctx.fillStyle = 'rgba(30,10,60,0.90)';
-    }
+    ctx.fillStyle = b.active ? b.col : (hov ? 'rgba(100,40,180,0.95)' : 'rgba(28,8,56,0.92)');
     ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(bx, ty, bw, btnH, 5);
-    else ctx.rect(bx, ty, bw, btnH);
+    if (ctx.roundRect) ctx.roundRect(bx, ty, bw, btnH, 4); else ctx.rect(bx, ty, bw, btnH);
     ctx.fill();
 
-    // ボタン枠（アクティブ時は色付き）
-    ctx.strokeStyle = b.active ? b.col : (hov ? '#aa66ff' : '#44224488');
-    ctx.lineWidth = b.active ? 2 : 1;
+    ctx.strokeStyle = b.active ? b.col : (hov ? '#aa66ff' : 'rgba(80,30,140,0.5)');
+    ctx.lineWidth = b.active ? 1.8 : 0.8;
     ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(bx, ty, bw, btnH, 5);
-    else ctx.rect(bx, ty, bw, btnH);
+    if (ctx.roundRect) ctx.roundRect(bx, ty, bw, btnH, 4); else ctx.rect(bx, ty, bw, btnH);
     ctx.stroke();
 
-    // ラベルテキスト
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    if (b.toggle && b.sub !== '') {
-      // トグルボタン：ラベルと状態を2行に
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (b.toggle && b.sub) {
       ctx.fillStyle = b.active ? '#001800' : '#ffffff';
-      ctx.font = 'bold 11px monospace';
-      ctx.fillText(b.label, bx + bw / 2, ty + btnH / 2 - 5);
       ctx.font = 'bold 10px monospace';
-      ctx.fillStyle = b.active ? '#001800' : (b.sub === 'ON' ? '#44ff88' : '#ff6666');
-      ctx.fillText(b.sub, bx + bw / 2, ty + btnH / 2 + 8);
+      ctx.fillText(b.label, bx+bw/2, ty+btnH/2-5);
+      ctx.font = 'bold 9px monospace';
+      ctx.fillStyle = b.active ? '#001800' : (b.sub==='ON' ? '#44ff88' : '#ff6666');
+      ctx.fillText(b.sub, bx+bw/2, ty+btnH/2+6);
     } else {
       ctx.fillStyle = b.active ? '#001800' : '#ffffff';
-      ctx.font = 'bold 11px monospace';
-      ctx.fillText(b.label, bx + bw / 2, ty + btnH / 2);
+      ctx.font = 'bold 10px monospace';
+      ctx.fillText(b.label, bx+bw/2, ty+btnH/2);
     }
   });
 
   ctx.restore();
-
-  // クリック判定用に座標を保存
-  _adminBarBtns = btns.map((b, i) => ({ ...b, x: bx, y: by + i * (btnH + gap), w: bw, h: btnH }));
+  _adminBarBtns = btns.map((b,i) => ({...b, x:bx, y:by+i*(btnH+gap), w:bw, h:btnH}));
 }
 
 function handleAdminBarClick(mx, my) {
@@ -14394,13 +14837,14 @@ function handleAdminBarClick(mx, my) {
       if (b.key==='inv')     { _adminBar.invincible=!_adminBar.invincible; playSFX('click'); }
       if (b.key==='onehit')  { _adminBar.oneHit=!_adminBar.oneHit; playSFX('click'); }
       if (b.key==='lvup')    { _adminLevelUp(); playSFX('levelup'); }
+      if (b.key==='skill')   { if(player) skillCooldown=0; playSFX('click'); }
       if (b.key==='chest')   { _adminSpawnChest(); playSFX('buy'); }
-      if (b.key==='coin')    { _adminAddCoins(99999); playSFX('buy'); }
-      if (b.key==='shreset') { _adminResetShop(); playSFX('click'); }
+      if (b.key==='heal')    { if(player) player.hp=player.maxHp; playSFX('click'); }
+      if (b.key==='maxexp')  { if(player){ player.exp=player.maxExp; checkLevelUp(); } playSFX('levelup'); }
+      if (b.key==='boss')    { spawnBoss(); playSFX('click'); }
       if (b.key==='sl')      { _adminSpawnEnemy('slime'); playSFX('click'); }
       if (b.key==='sk')      { _adminSpawnEnemy('skeleton'); playSFX('click'); }
-      if (b.key==='boss')    { spawnBoss(); playSFX('click'); }
-      if (b.key==='skill')   { if(player) skillCooldown=0; playSFX('click'); }
+      if (b.key==='killall') { for(const e of enemies){ if(!e.isFinalBoss) e.hp=0; } playSFX('click'); }
       return true;
     }
   }
@@ -14427,7 +14871,7 @@ function drawSettingsScreen() {
     ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
   }
 
-  const pw = Math.min(380, W - 20), ph = Math.min(530, H - 60);
+  const pw = Math.min(380, W - 20), ph = Math.min(560, H - 40);
   const px = (W - pw) / 2, py = Math.max(10, (H - ph) / 2 - 10);
 
   ctx.fillStyle = 'rgba(18,6,42,0.95)';
@@ -14543,6 +14987,23 @@ function drawSettingsScreen() {
   ctx.font='bold 12px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText(_adminMode?'👑 管理者モード：ON （タップでOFF）':'🔐 管理者モード', adX+adW/2, adY+adH/2);
 
+  // 管理者パネルを開くボタン（管理者ONのときのみ表示）
+  let apX, apY, apW, apH;
+  if (_adminMode) {
+    apW=pw-32; apH=30; apX=px+16; apY=py+416;
+    const apHov=lastMX>=apX&&lastMX<=apX+apW&&lastMY>=apY&&lastMY<=apY+apH;
+    ctx.fillStyle=apHov?'rgba(150,40,255,0.95)':'rgba(80,20,140,0.85)';
+    ctx.beginPath();
+    ctx.roundRect?ctx.roundRect(apX,apY,apW,apH,10):ctx.rect(apX,apY,apW,apH);
+    ctx.fill();
+    ctx.strokeStyle='#bb44ff'; ctx.lineWidth=1.2;
+    ctx.beginPath();
+    ctx.roundRect?ctx.roundRect(apX,apY,apW,apH,10):ctx.rect(apX,apY,apW,apH);
+    ctx.stroke();
+    ctx.fillStyle='#ffffff'; ctx.font='bold 12px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('👑 管理者パネルを開く →', apX+apW/2, apY+apH/2);
+  }
+
   // バージョン
   ctx.fillStyle='rgba(100,70,140,0.7)'; ctx.font='10px monospace';
   ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -14554,7 +15015,8 @@ function drawSettingsScreen() {
     tog1, tog2, tog3,
     fsX, fsY, fsW, fsH,
     rv1X, rv1Y, rv1W, rv1H, rv2X, rv2Y,
-    adX, adY, adW, adH };
+    adX, adY, adW, adH,
+    apX, apY, apW, apH };
 }
 
 let _settingsUI = null;
@@ -14562,7 +15024,13 @@ let _settingsUI = null;
 function handleSettingsClick(mx, my) {
   if (!_settingsUI) return;
   const { sl1, sl2, tog1, tog2, tog3, fsX, fsY, fsW, fsH,
-          rv1X, rv1Y, rv1W, rv1H, rv2X, rv2Y, adX, adY, adW, adH } = _settingsUI;
+          rv1X, rv1Y, rv1W, rv1H, rv2X, rv2Y, adX, adY, adW, adH,
+          apX, apY, apW, apH } = _settingsUI;
+
+  // 管理者パネルを開くボタン
+  if (_adminMode && apX!==undefined && mx>=apX&&mx<=apX+apW&&my>=apY&&my<=apY+apH) {
+    playSFX('click'); state='adminPanel'; return;
+  }
 
   // 管理者モードボタン
   if (adX!==undefined && mx>=adX&&mx<=adX+adW&&my>=adY&&my<=adY+adH) {
