@@ -69,7 +69,7 @@ canvas {
 // ║  3 = major (game complete), 5 = feature batch,          ║
 // ║  0 = patch (settings / balance / mobile fixes)          ║
 // ╚══════════════════════════════════════════════════════════╝
-const GAME_VERSION = '3.5.0';
+const GAME_VERSION = '3.7.0';
 const GAME_VERSION_DATE = '2026';
 
 // ===== CAT IMAGES (base64) =====
@@ -3490,6 +3490,21 @@ const ENEMY_LORE = {
     story:'鏡の中に住む、回廊の中ボス。\n相手の姿を写して、その人の一番嫌いなところを突いてくる。\n本当は自分自身の顔に自信がなくて、\nずっと鏡の裏側に隠れている恥ずかしがり屋。', color:'#aaddff' },
   mastermirror: { name:'🪞 虚無の主', hp:'最高', atk:'最高', speed:'速い',
     story:'実体のない影のような、回廊のラスボス。\n誰にも気づかれず、誰にも触れられない。\n彼が放つ「虚無」の波動は、\nせめて誰かに「ここにいるよ」と気づいてほしい悲鳴なのかもしれない。', color:'#6688ff' },
+  // ── 新・回廊専用敵（v3.7） ──────────────────────────────────────────
+  shadowrat:   { name:'🐀 影ネズミ',      hp:'弱い',  atk:'弱い',  speed:'速い',
+    story:'回廊の壁の隙間に住み着いたネズミの影。\n壁スレスレを走るのが得意。\nチーズが大好きで、みんなの宝箱を漁っている。', color:'#663355' },
+  cursedscroll:{ name:'📜 呪いの巻物',    hp:'普通',  atk:'普通',  speed:'普通',
+    story:'回廊を漂う呪いの巻物。\n読もうとすると突進してくる。\n中身はただの買い物リストらしい。', color:'#883300' },
+  lanternspook:{ name:'🏮 ちょうちん小僧',hp:'普通',  atk:'普通',  speed:'遅め',
+    story:'回廊を照らすちょうちん小僧。\n光で迷い込ませるのが得意技。\n本人は親切のつもりでやっている。', color:'#ddaa00' },
+  onisensei:   { name:'👹 鬼先生',         hp:'高い',  atk:'強い',  speed:'遅め',
+    story:'迷子を見つけてはしつこく\n道を教えようとする鬼先生。\nうるさい。でも道は正確に教えてくれる。', color:'#cc4422' },
+  mirrorshade: { name:'🪞 鏡の影',         hp:'普通',  atk:'普通',  speed:'速い',
+    story:'鏡から抜け出した影の存在。\n半透明で壁の反射に紛れる。\n戦闘中も鏡を探している。', color:'#aaccff' },
+  tatamininja: { name:'🥷 畳忍者ネコ',     hp:'普通',  atk:'普通',  speed:'速い',
+    story:'畳に擬態して待ち伏せする忍者ネコ。\n近づくと突然飛び出してくる。\n修行中で忍術の出来はまだまだ。', color:'#225533' },
+  ghostarmor:  { name:'🛡 鎧ゴースト',     hp:'高い',  atk:'強い',  speed:'遅め',
+    story:'鎧に取り憑いたゴースト。\n硬くて倒しにくいが非常に遅い。\n憑いた理由は「寒かったから」らしい。', color:'#9988bb' },
   boss: {
     name: '🍮 ぷりん殿下',
     hp: '非常に高い', atk: '非常に強い', speed: '普通',
@@ -4802,6 +4817,14 @@ const ENEMY_DEFS = {
   frostphantom: { r: 15, baseHp: 42,  hpPerMin: 7,   spd: 1.6, exp: 8,  color: '#aaddff', dmg: 13, gemDrop:'large' },
   abyssjellyfish:{ r:18, baseHp: 52,  hpPerMin: 8.5, spd: 1.4, exp: 9,  color: '#223399', dmg: 15, gemDrop:'large' },
   voidknight:   { r: 19, baseHp: 60,  hpPerMin: 10,  spd: 1.7, exp: 10, color: '#554488', dmg: 16, gemDrop:'large' },
+  // ─── 新・回廊専用ザコ敵 ───────────────────────────────────────────────
+  shadowrat:    { r: 11, baseHp: 15,  hpPerMin: 2.5, spd: 2.6, exp: 2,  color: '#663355', dmg: 7  }, // 素早いネズミの影
+  cursedscroll: { r: 13, baseHp: 20,  hpPerMin: 3,   spd: 1.8, exp: 3,  color: '#883300', dmg: 8  }, // 呪いの巻物（回転しながら突進）
+  lanternspook: { r: 15, baseHp: 28,  hpPerMin: 4,   spd: 1.5, exp: 3,  color: '#ddaa00', dmg: 9  }, // ちょうちん小僧（光で誘い込む）
+  onisensei:    { r: 18, baseHp: 42,  hpPerMin: 6,   spd: 1.4, exp: 5,  color: '#cc4422', dmg: 13 }, // 教え好きの鬼先生
+  mirrorshade:  { r: 16, baseHp: 35,  hpPerMin: 5.5, spd: 1.9, exp: 5,  color: '#aaccff', dmg: 11 }, // 鏡の影（半透明）
+  tatamininja:  { r: 14, baseHp: 30,  hpPerMin: 5,   spd: 2.4, exp: 4,  color: '#225533', dmg: 10 }, // 畳に潜む忍者ネコ
+  ghostarmor:   { r: 20, baseHp: 55,  hpPerMin: 8,   spd: 1.3, exp: 6,  color: '#9988bb', dmg: 15 }, // 鎧ゴースト（硬い）
   // Day stage bosses
   ironbull:   { r: 55, baseHp:1800, hpPerMin:120,  spd: 1.0, exp:200, color: '#884422', dmg: 55 },
   // Night stage bosses
@@ -4855,11 +4878,12 @@ function spawnEnemy(wave) {
 
   let x, y;
   if (stgCorridor) {
-    // 回廊：上か下からのみ出現（左右は廊下幅内ランダム）
-    const cx = _corridorCenterX || player.x;
-    const corrHalfW = 90;
-    x = cx + (Math.random() - 0.5) * corrHalfW * 1.6;
-    y = Math.random() < 0.5 ? player.y - 380 : player.y + 380;
+    // 回廊：どちらか一方の端から出現（波ごとに上or下を固定）
+    const spawnFromTop = (_corridorSpawnSide === 'top');
+    const spawnY = spawnFromTop ? player.y - 420 : player.y + 420;
+    const cx2 = _corridorBaseX ? _corridorCenterAtY(spawnY) : player.x;
+    x = cx2 + (Math.random() - 0.5) * CORR_HALF_W * 1.5;
+    y = spawnY;
   } else {
     const a = Math.random() * Math.PI * 2;
     const d = 420 + Math.random() * 100;
@@ -4887,7 +4911,13 @@ function spawnEnemy(wave) {
     const pool = min<2?['clione','seahorse']:min<3?['clione','jellyfish','seahorse']:min<4?['clione','jellyfish','seahorse','pufferfish']:min<5?['clione','jellyfish','seahorse','pufferfish']:['clione','jellyfish','seahorse','pufferfish',_gemBlue.ocean,_gemPurple.ocean];
     type = pool[Math.floor(Math.random()*pool.length)];
   } else if (stgCorridor) {
-    const pool = min<2?['ancientbook','magicorb']:min<3?['catarmor','ancientbook','magicorb']:min<4?['catarmor','ancientbook','phantomknight','magicorb']:min<5?['catarmor','ancientbook','phantomknight','magicorb']:['catarmor','ancientbook','phantomknight','magicorb',_gemBlue.corridor,_gemPurple.corridor];
+    // 敵プールに新キャラを追加（時間経過で増加）
+    const pool = min<1 ? ['shadowrat','cursedscroll','magicorb']
+      : min<2 ? ['shadowrat','cursedscroll','lanternspook','magicorb','ancientbook']
+      : min<3 ? ['shadowrat','cursedscroll','lanternspook','ancientbook','catarmor','mirrorshade']
+      : min<4 ? ['shadowrat','tatamininja','lanternspook','ancientbook','catarmor','mirrorshade','phantomknight','onisensei']
+      : min<5 ? ['tatamininja','lanternspook','catarmor','mirrorshade','phantomknight','onisensei','ghostarmor',_gemBlue.corridor]
+      : ['tatamininja','mirrorshade','phantomknight','onisensei','ghostarmor',_gemBlue.corridor,_gemPurple.corridor,'cursedscroll','lanternspook'];
     type = pool[Math.floor(Math.random()*pool.length)];
   } else if (stgGrave) {
     // Grave: zombie, skeleton, bat, ghost + exclusive enemies
@@ -5031,7 +5061,10 @@ function initGame() {
   };
   enemies = [];
   enemyBullets = [];
-  _corridorSegments = null; _corridorSeed = Date.now(); _corridorCenterX = null;
+  _corridorSegments = null; _corridorSeed = Date.now();
+  _corridorCenterX = null; _corridorBaseX = null;
+  _corridorSpawnSide = Math.random() < 0.5 ? 'top' : 'bottom';
+  _corridorSpawnSideTimer = 0;
   _corridorZoomSet = false;
   // 回廊以外のステージはzoomをリセット
   const _initStg = STAGES[selectedStage] || STAGES[0];
@@ -6132,11 +6165,10 @@ function updatePlayer(dt) {
   // Camera lerp
   const stgC = STAGES[selectedStage] || STAGES[0];
   if (stgC && stgC.isCorridor) {
-    // 回廊：X固定（ふすま壁が担当）、Y方向のみスムーズ追従（揺れ防止）
-    if (_corridorCenterX) cam.x = _corridorCenterX - W / 2;
-    cam.y += (player.y - H / 2 - cam.y) * Math.min(dt * 7, 0.15);
-    // 初回のみズームを0.78に設定（引きめの視点）
-    if (!_corridorZoomSet) { cam.zoom = 0.78; _corridorZoomSet = true; }
+    // 回廊：カメラXはwinding廊下中心を追う（drawCorridorWallsで微調整）
+    // ここではY方向のみ管理
+    cam.y += (player.y - H / 2 - cam.y) * Math.min(dt * 7, 0.14);
+    if (!_corridorZoomSet) { cam.zoom = 0.75; _corridorZoomSet = true; }
   } else {
     cam.x += (player.x - W / 2 - cam.x) * dt * 9;
     cam.y += (player.y - H / 2 - cam.y) * dt * 9;
@@ -6540,48 +6572,125 @@ function _getCorridorWallX(worldY) {
   return { halfW: 80 };
 }
 
+// ── 回廊のくねくね迷路システム ──────────────────────────────────────────────
+// ワールドY位置から廊下中心Xを計算（サイン波で蛇行）
+function _corridorCenterAtY(worldY) {
+  if (!_corridorBaseX) return 0;
+  // 周期的に蛇行する廊下（Shadow Corridor風）
+  const seg1 = Math.sin(worldY * 0.0045 + 0.5) * 180;
+  const seg2 = Math.sin(worldY * 0.0018 + 1.2) * 120;
+  const seg3 = Math.sin(worldY * 0.0090 + 2.1) * 60;
+  return _corridorBaseX + seg1 + seg2 + seg3;
+}
+
+const CORR_HALF_W = 110; // 廊下の半幅（拡大：端が見えない）
+
 function drawCorridorWalls() {
   const stg = STAGES[selectedStage] || STAGES[0];
   if (!stg.isCorridor) return;
 
-  // ── 回廊の固定幅 ────────────────────────────────────────────────────
-  const CORR_W = 200; // 廊下の幅（ワールド単位）
-  // 廊下の中心X はゲーム開始時のプレイヤーX に固定
-  if (!_corridorCenterX && player) _corridorCenterX = player.x;
-  const cx = _corridorCenterX || 0;
-  const leftWall  = cx - CORR_W / 2;  // 左壁のワールドX
-  const rightWall = cx + CORR_W / 2;  // 右壁のワールドX
+  if (!_corridorBaseX && player) _corridorBaseX = player.x;
 
-  // スクリーン座標
-  const leftSX  = leftWall  - cam.x;   // 左壁の右端（スクリーン）
-  const rightSX = rightWall - cam.x;   // 右壁の左端（スクリーン）
-
-  // ── プレイヤーをX軸に固定 ───────────────────────────────────────────
+  // ── プレイヤーを廊下内に強制クランプ ────────────────────────────────
   if (player) {
-    const pad = player.r + 4;
-    if (player.x < leftWall  + pad) { player.x = leftWall  + pad; player.knockX = 0; }
-    if (player.x > rightWall - pad) { player.x = rightWall - pad; player.knockX = 0; }
-    // カメラX も廊下中心を常に画面中央に
-    cam.x = cx - W / 2;
+    const pCX = _corridorCenterAtY(player.y);
+    const pad = player.r + 6;
+    const lBound = pCX - CORR_HALF_W + pad;
+    const rBound = pCX + CORR_HALF_W - pad;
+    if (player.x < lBound) { player.x = lBound; player.knockX = Math.max(0, player.knockX); }
+    if (player.x > rBound) { player.x = rBound; player.knockX = Math.min(0, player.knockX); }
+    // カメラXはプレイヤーXではなく廊下中心を追う
+    const targetCamX = pCX - W / 2;
+    cam.x += (targetCamX - cam.x) * 0.12;
   }
 
-  // ── 壁の外側（真っ暗）───────────────────────────────────────────────
+  // ── 壁を各スキャンラインごとに描画（くねくね形状） ───────────────────
   ctx.save();
-  ctx.fillStyle = '#060308';
-  ctx.fillRect(0, 0, Math.max(0, leftSX), H);
-  ctx.fillRect(rightSX, 0, W - rightSX, H);
 
-  // ── ふすま壁テクスチャ（左）─────────────────────────────────────────
-  _drawFusumaWall(0, leftSX, true);
-  _drawFusumaWall(rightSX, W - rightSX, false);
+  // まず画面全体を暗闇で塗る
+  ctx.fillStyle = '#040206';
+  ctx.fillRect(0, 0, W, H);
 
-  // ── 敵のX位置も廊下内に限定 ─────────────────────────────────────────
+  // 廊下の通路部分を木の床色で抜く（各スキャンラインを走査）
+  const STEP = 4; // 4px単位で描画（パフォーマンス）
+  for (let sy = 0; sy <= H; sy += STEP) {
+    const worldY = sy + cam.y;
+    const cxW = _corridorCenterAtY(worldY);
+    const leftX  = Math.round(cxW - CORR_HALF_W - cam.x);
+    const rightX = Math.round(cxW + CORR_HALF_W - cam.x);
+    // 廊下の床（木の色）
+    const floorIdx = Math.floor(worldY / 16) % 4;
+    const floorCols = ['#160c04','#1a0e06','#130804','#1e1008'];
+    ctx.fillStyle = floorCols[floorIdx];
+    ctx.fillRect(leftX, sy, rightX - leftX, STEP + 1); // +1でギャップなし
+
+    // 壁との境界にふすまエッジを描く
+    const edgeW = 22;
+    // 左ふすまエッジ
+    const lfGrd = ctx.createLinearGradient(leftX - edgeW, 0, leftX, 0);
+    lfGrd.addColorStop(0, '#040206');
+    lfGrd.addColorStop(0.5, '#1a0e0a');
+    lfGrd.addColorStop(1, '#c8a040');
+    ctx.fillStyle = lfGrd;
+    ctx.fillRect(leftX - edgeW, sy, edgeW, STEP + 1);
+    // 右ふすまエッジ
+    const rfGrd = ctx.createLinearGradient(rightX, 0, rightX + edgeW, 0);
+    rfGrd.addColorStop(0, '#c8a040');
+    rfGrd.addColorStop(0.5, '#1a0e0a');
+    rfGrd.addColorStop(1, '#040206');
+    ctx.fillStyle = rfGrd;
+    ctx.fillRect(rightX, sy, edgeW, STEP + 1);
+  }
+
+  // ── 壁の格子模様（ふすま）を描く ────────────────────────────────────
+  const gridSize = 20;
+  ctx.strokeStyle = 'rgba(120,88,30,0.28)';
+  ctx.lineWidth = 0.8;
+  for (let sy = -(cam.y % gridSize); sy <= H; sy += gridSize) {
+    const worldY = sy + cam.y;
+    const cxW = _corridorCenterAtY(worldY);
+    const leftX = Math.round(cxW - CORR_HALF_W - cam.x) - 22;
+    const rightX = Math.round(cxW + CORR_HALF_W - cam.x) + 22;
+    ctx.beginPath(); ctx.moveTo(0, sy); ctx.lineTo(leftX, sy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(rightX, sy); ctx.lineTo(W, sy); ctx.stroke();
+  }
+
+  // ── 廊下のランタン（壁に固定）────────────────────────────────────────
+  const lanternSpacing = 220;
+  for (let li = 0; li < 8; li++) {
+    const lWorldY = Math.round(cam.y / lanternSpacing) * lanternSpacing + li * lanternSpacing;
+    const lSY = lWorldY - cam.y;
+    if (lSY < -30 || lSY > H + 30) continue;
+    const lCX = _corridorCenterAtY(lWorldY);
+    const lLeftX  = Math.round(lCX - CORR_HALF_W - cam.x) - 4;
+    const lRightX = Math.round(lCX + CORR_HALF_W - cam.x) + 4;
+    const flicker = 0.28 + 0.12 * Math.sin(gameTime * 4.5 + li * 1.7);
+    [lLeftX, lRightX].forEach(lx => {
+      ctx.save();
+      ctx.globalAlpha = flicker;
+      const lgrd = ctx.createRadialGradient(lx, lSY, 0, lx, lSY, 50);
+      lgrd.addColorStop(0, 'rgba(255,195,70,0.85)');
+      lgrd.addColorStop(1, 'rgba(255,130,15,0)');
+      ctx.fillStyle = lgrd;
+      ctx.beginPath(); ctx.arc(lx, lSY, 50, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+      // ランタン本体
+      ctx.fillStyle = '#b87820';
+      ctx.fillRect(lx - 4, lSY - 2, 8, 10);
+    });
+  }
+
+  // ── 敵のX位置も廊下内にクランプ ─────────────────────────────────────
   for (const e of enemies) {
     if (!e.boss) {
-      if (e.x < leftWall + e.r)  { e.x = leftWall + e.r;  e.knockX = 0; }
-      if (e.x > rightWall - e.r) { e.x = rightWall - e.r; e.knockX = 0; }
+      const eCX = _corridorCenterAtY(e.y);
+      const el = eCX - CORR_HALF_W + e.r;
+      const er = eCX + CORR_HALF_W - e.r;
+      if (e.x < el) { e.x = el; e.knockX = 0; }
+      if (e.x > er) { e.x = er; e.knockX = 0; }
     }
   }
+
   ctx.restore();
 }
 
@@ -6678,7 +6787,10 @@ function _drawFusumaWall(sx, width, isLeft) {
   ctx.restore();
 }
 
-let _corridorCenterX = null;
+let _corridorCenterX = null; // 旧変数（互換性のため残す）
+let _corridorBaseX   = null; // 新：蛇行計算の基準X
+let _corridorSpawnSide = 'top'; // どちら側からスポーンするか
+let _corridorSpawnSideTimer = 0;
 
 // ── 回廊の迷路分岐システム ────────────────────────────────────────────────
 let _corridorForks = [];
@@ -6695,7 +6807,15 @@ function _initCorridorForks() {
 function updateCorridorForks(dt) {
   const stg = STAGES[selectedStage] || STAGES[0];
   if (!stg.isCorridor || !player) return;
-  const cx = _corridorCenterX || player.x;
+  if (!_corridorBaseX) _corridorBaseX = player.x;
+  const cx = _corridorCenterAtY(player.y);
+
+  // スポーンサイド切り替え（30〜50秒ごと）
+  _corridorSpawnSideTimer -= dt;
+  if (_corridorSpawnSideTimer <= 0) {
+    _corridorSpawnSide = _corridorSpawnSide === 'top' ? 'bottom' : 'top';
+    _corridorSpawnSideTimer = 30 + Math.random() * 20;
+  }
 
   if (player.y + 600 > _corridorNextForkY) {
     const forkY = _corridorNextForkY;
@@ -6715,10 +6835,11 @@ function updateCorridorForks(dt) {
     const distY = fork.y - player.y;
     if (!fork.chestSpawned && distY < 280 && distY > -60) {
       fork.chestSpawned = true;
-      chests.push({ x: cx + fork.chestSide * 74, y: fork.y, bobT: 0, sparkleT: 0, life: 60, open: false, _corridorFork: true });
+      const forkCX = _corridorBaseX ? _corridorCenterAtY(fork.y) : player.x;
+      chests.push({ x: forkCX + fork.chestSide * 80, y: fork.y, bobT: 0, sparkleT: 0, life: 60, open: false, _corridorFork: true });
       if (!fork.shown) {
         fork.shown = true;
-        fxList.push({ type:'text', x:cx, y:fork.y - 50, text:'🗝 分かれ道！宝箱あり', life:3.5, color:'#ffdd66', vy:-14 });
+        fxList.push({ type:'text', x:forkCX, y:fork.y - 50, text:'🗝 分かれ道！宝箱あり', life:3.5, color:'#ffdd66', vy:-14 });
       }
     }
     if (player.y > fork.y + 300) fork.passed = true;
@@ -8853,7 +8974,19 @@ let lastMX=0, lastMY=0;
 // ║  UPDATE LOG SCREEN                                       ║
 // ╚══════════════════════════════════════════════════════════╝
 const UPDATE_LOG = [
-  { ver:'v3.5.0', date:'最新', color:'#aaff88', entries:[
+  { ver:'v3.7.0', date:'最新', color:'#88ffcc', entries:[
+    '🏛 回廊マップを完全リワーク（Shadow Corridor風くねくね蛇行迷路）',
+    '🧱 廊下が正弦波で蛇行し、プレイヤーが廊下内に完全クランプされるよう修正',
+    '🔒 場外貫通バグを修正（スキャンライン単位で壁を計算）',
+    '📐 廊下幅を拡大（端の黒帯が見えなくなるよう対応）',
+    '🪟 廊下の壁をスキャンラインごとに描画し、ふすまのエッジと格子を追加',
+    '🏮 廊下のランタンが蛇行する廊下壁に固定されるよう改善',
+    '👺 回廊専用の新ザコ敵を7種追加（影ネズミ・呪いの巻物・ちょうちん小僧・鬼先生・鏡の影・畳忍者ネコ・鎧ゴースト）',
+    '⬆ 時間経過で新敵が段階的に登場するよう敵プールを改善',
+    '↕ 敵は上か下のどちらか一方からのみ出現（30〜50秒で自動切替）',
+    '🗺 迷路分岐システムを改善（廊下の蛇行に合わせた宝箱位置）',
+  ]},
+  { ver:'v3.6.4', date:'', color:'#aaff88', entries:[
     '⚙️ 設定画面を本格実装（BGM/SE音量スライダー・ミュート・データリセット・フルスクリーン）',
     '⚙️ 歯車ボタンをすっきり歯車マークのみに変更（背景円を削除）',
     '🎬 オープニングムービーをフル描画アニメーション版に大幅リニューアル',
